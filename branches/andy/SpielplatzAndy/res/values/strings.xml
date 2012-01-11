@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">DJApp</string>
+    <string name="audioPlayer">AudioPlayer</string>
+    <string name="noSongFound">No songs found.</string>
+   <string name="noSongPlaying">No song playing.</string>
+   <string name="play">Play</string>
+   <string name="pause">Pause</string>
+   <string name="next">Next song</string>
+   <string name="prev">Previous song</string>
+
+</resources>
