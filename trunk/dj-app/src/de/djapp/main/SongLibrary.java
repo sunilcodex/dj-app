@@ -96,6 +96,8 @@ public class SongLibrary
 	/**
 	 * Get a list of all songs
 	 * 
+	 * @param sortBy
+	 *            Sort by either title, artist or album
 	 * @return A list of all songs, or an emtpy list
 	 */
 	public List<Song> getAllSongs(SortBy sortBy)
