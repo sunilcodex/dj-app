@@ -1,106 +1,128 @@
 package com.example.DJApp;
 
+import java.io.IOException;
+
 import android.media.MediaPlayer;
 import android.util.Log;
 import android.widget.MediaController;
 
-import java.io.IOException;
-
-public class AudioPlayer implements MediaController.MediaPlayerControl {
+public class AudioPlayer implements MediaController.MediaPlayerControl
+{
 	private static final String TAG = "AudioPlayer";
 
 	private MediaPlayer mediaPlayer;
-
 	private String audioFile = "";
 
-	public AudioPlayer() {
+	public AudioPlayer()
+	{
 		mediaPlayer = new MediaPlayer();
 	}
 
-	public String getAudioFile() {
+	public String getAudioFile()
+	{
 		return audioFile;
 	}
 
-	public void setAudioFile(String audioFileP) {
+	public void setAudioFile(String audioFileP)
+	{
 		boolean playIt = false;
-		if(mediaPlayer.isPlaying()) playIt = true;
+		if (mediaPlayer.isPlaying())
+			playIt = true;
 		audioFile = audioFileP;
 		mediaPlayer.reset();
 
-		try {
+		try
+		{
 			mediaPlayer.setDataSource(audioFile);
 			mediaPlayer.prepare();
-			if(playIt) mediaPlayer.start();
-		} catch (IOException e) {
+			if (playIt)
+				mediaPlayer.start();
+		}
+		catch (IOException e)
+		{
 			Log.e(TAG, "Could not open file " + audioFile + " for playback.", e);
 		}
-
 	}
 
 	public void setVolume(float volume)
 	{
 		mediaPlayer.setVolume(volume, volume);
 	}
-	
+
 	// --MediaPlayerControl
 	// methods----------------------------------------------------
-	public void start() {
+	public void start()
+	{
 		mediaPlayer.start();
 	}
 
-	public void pause() {
+	public void pause()
+	{
 		mediaPlayer.pause();
 	}
 
-	public int getDuration() {
+	public void stop()
+	{
+		mediaPlayer.stop();
+	}
+
+	public int getDuration()
+	{
 		return mediaPlayer.getDuration();
 	}
-	
+
 	public int getDurationInSeconds()
 	{
 		return mediaPlayer.getDuration() / 1000;
 	}
 
-	public int getCurrentPosition() {
+	public int getCurrentPosition()
+	{
 		return mediaPlayer.getCurrentPosition();
 	}
-	
+
 	public int getCurrentPositionInSeconds()
 	{
 		return mediaPlayer.getCurrentPosition() / 1000;
 	}
-	
+
 	public float getCurrentPositionInPercent()
 	{
-		return (float) this.getCurrentPosition() / (float) this.getDuration() ;
+		return (float) this.getCurrentPosition() / (float) this.getDuration();
 	}
 
-	public void seekTo(int i) {
+	public void seekTo(int i)
+	{
 		mediaPlayer.seekTo(i);
 	}
-	
+
 	public void seekTo(float f)
 	{
 		mediaPlayer.seekTo((int) (mediaPlayer.getDuration() * f));
 	}
 
-	public boolean isPlaying() {
+	public boolean isPlaying()
+	{
 		return mediaPlayer.isPlaying();
 	}
 
-	public int getBufferPercentage() {
+	public int getBufferPercentage()
+	{
 		return 0;
 	}
 
-	public boolean canPause() {
+	public boolean canPause()
+	{
 		return true;
 	}
 
-	public boolean canSeekBackward() {
+	public boolean canSeekBackward()
+	{
 		return true;
 	}
 
-	public boolean canSeekForward() {
+	public boolean canSeekForward()
+	{
 		return true;
 	}
 
