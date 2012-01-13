@@ -1,6 +1,8 @@
 package de.djapp.main;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import android.content.ContentResolver;
@@ -96,8 +98,60 @@ public class SongLibrary
 	 * 
 	 * @return A list of all songs, or an emtpy list
 	 */
-	public List<Song> getAllSongs()
+	public List<Song> getAllSongs(SortBy sortBy)
 	{
+		switch (sortBy)
+		{
+			case ALBUM:
+				Collections.sort(this.allSongs, new SortByAlbum());
+				break;
+			case ARTIST:
+				Collections.sort(this.allSongs, new SortByArtist());
+				break;
+			default:
+			case TITLE:
+				Collections.sort(this.allSongs, new SortByTitle());
+				break;
+
+		}
+
 		return this.allSongs;
 	}
+
+	private class SortByTitle implements Comparator<Song>
+	{
+		@Override
+		public int compare(Song lhs, Song rhs)
+		{
+			if (lhs == null || rhs == null || lhs.getTitle() == null || rhs.getTitle() == null)
+				return -1;
+
+			return lhs.getTitle().compareTo(rhs.getTitle());
+		}
+	}
+
+	private class SortByArtist implements Comparator<Song>
+	{
+		@Override
+		public int compare(Song lhs, Song rhs)
+		{
+			if (lhs == null || rhs == null || lhs.getArtist() == null || rhs.getArtist() == null)
+				return -1;
+
+			return lhs.getArtist().compareTo(rhs.getArtist());
+		}
+	}
+
+	private class SortByAlbum implements Comparator<Song>
+	{
+		@Override
+		public int compare(Song lhs, Song rhs)
+		{
+			if (lhs == null || rhs == null || lhs.getAlbum() == null || rhs.getAlbum() == null)
+				return -1;
+
+			return lhs.getAlbum().compareTo(rhs.getAlbum());
+		}
+	}
+
 }
