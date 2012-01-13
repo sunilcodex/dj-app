@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+	<LinearLayout
+	    xmlns:android="http://schemas.android.com/apk/res/android"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+	>
+	<LinearLayout 
+	    	android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="horizontal"
+	    >
+	    <TextView 
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:text="@string/sort_by_prompt"
+	        />
+		<Spinner 
+		    android:id="@+id/spinner_sort_by"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:prompt="@string/sort_by_prompt"
+		    />
+	</LinearLayout>
+	    
+	<GridView 
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:id="@+id/song_list"
+	    android:numColumns="2"
+	    android:verticalSpacing="10dp"
+	    />
+</LinearLayout>
