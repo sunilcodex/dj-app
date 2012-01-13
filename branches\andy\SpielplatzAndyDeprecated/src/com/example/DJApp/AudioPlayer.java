@@ -1,0 +1,129 @@
+package com.example.DJApp;
+
+import java.io.IOException;
+
+import android.media.MediaPlayer;
+import android.util.Log;
+import android.widget.MediaController;
+
+public class AudioPlayer implements MediaController.MediaPlayerControl
+{
+	private static final String TAG = "AudioPlayer";
+
+	private MediaPlayer mediaPlayer;
+	private String audioFile = "";
+
+	public AudioPlayer()
+	{
+		mediaPlayer = new MediaPlayer();
+	}
+
+	public String getAudioFile()
+	{
+		return audioFile;
+	}
+
+	public void setAudioFile(String audioFileP)
+	{
+		boolean playIt = false;
+		if (mediaPlayer.isPlaying())
+			playIt = true;
+		audioFile = audioFileP;
+		mediaPlayer.reset();
+
+		try
+		{
+			mediaPlayer.setDataSource(audioFile);
+			mediaPlayer.prepare();
+			if (playIt)
+				mediaPlayer.start();
+		}
+		catch (IOException e)
+		{
+			Log.e(TAG, "Could not open file " + audioFile + " for playback.", e);
+		}
+	}
+
+	public void setVolume(float volume)
+	{
+		mediaPlayer.setVolume(volume, volume);
+	}
+
+	// --MediaPlayerControl
+	// methods----------------------------------------------------
+	public void start()
+	{
+		mediaPlayer.start();
+	}
+
+	public void pause()
+	{
+		mediaPlayer.pause();
+	}
+
+	public void stop()
+	{
+		mediaPlayer.stop();
+	}
+
+	public int getDuration()
+	{
+		return mediaPlayer.getDuration();
+	}
+
+	public int getDurationInSeconds()
+	{
+		return mediaPlayer.getDuration() / 1000;
+	}
+
+	public int getCurrentPosition()
+	{
+		return mediaPlayer.getCurrentPosition();
+	}
+
+	public int getCurrentPositionInSeconds()
+	{
+		return mediaPlayer.getCurrentPosition() / 1000;
+	}
+
+	public float getCurrentPositionInPercent()
+	{
+		return (float) this.getCurrentPosition() / (float) this.getDuration();
+	}
+
+	public void seekTo(int i)
+	{
+		mediaPlayer.seekTo(i);
+	}
+
+	public void seekTo(float f)
+	{
+		mediaPlayer.seekTo((int) (mediaPlayer.getDuration() * f));
+	}
+
+	public boolean isPlaying()
+	{
+		return mediaPlayer.isPlaying();
+	}
+
+	public int getBufferPercentage()
+	{
+		return 0;
+	}
+
+	public boolean canPause()
+	{
+		return true;
+	}
+
+	public boolean canSeekBackward()
+	{
+		return true;
+	}
+
+	public boolean canSeekForward()
+	{
+		return true;
+	}
+
+}
