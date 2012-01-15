@@ -1,21 +1,30 @@
 package com.example.DJApp;
 
+import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.MediaController;
+import android.app.AlertDialog;
+import android.content.res.Resources;
 
+import android.content.Context;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 
-public class AudioPlayer implements MediaController.MediaPlayerControl {
+public class AudioPlayer implements MediaController.MediaPlayerControl{
 	private static final String TAG = "AudioPlayer";
 
 	private MediaPlayer mediaPlayer;
 
 	private String audioFile = "";
-
+	
 	public AudioPlayer() {
 		mediaPlayer = new MediaPlayer();
-	}
+        }
 
 	public String getAudioFile() {
 		return audioFile;
