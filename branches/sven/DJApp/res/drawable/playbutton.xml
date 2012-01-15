@@ -1,8 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
  <selector xmlns:android="http://schemas.android.com/apk/res/android">
      <item android:state_pressed="true"
-           android:drawable="@drawable/play" /> <!-- pressed -->
+         android:state_selected="false"
+           android:drawable="@drawable/play_pressed" /> <!-- pressed -->
      <item android:state_focused="true"
+         android:state_selected="false"
            android:drawable="@drawable/play" /> <!-- focused -->
-     <item android:drawable="@drawable/play" /> <!-- default -->
+           
+     <item android:state_pressed="true"
+         android:state_selected="true"
+           android:drawable="@drawable/pause_pressed" /> <!-- pressed -->
+     <item android:state_focused="true"
+         android:state_selected="true"
+           android:drawable="@drawable/pause" /> <!-- focused -->
+           
+     <item android:drawable="@drawable/play"
+		 android:state_selected="false"/> <!-- default -->
+     <item android:drawable="@drawable/pause"
+		 android:state_selected="true"/> <!-- default -->
  </selector>

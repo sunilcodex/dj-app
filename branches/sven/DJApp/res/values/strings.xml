@@ -9,5 +9,7 @@
    <string name="pause">Pause</string>
    <string name="next">Next song</string>
    <string name="prev">Previous song</string>
-
+   <string name="error">Error!</string>
+<color name="background_main">#ECECEC</color>
+   
 </resources>

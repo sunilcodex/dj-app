@@ -1,7 +1,10 @@
 package com.example.DJApp;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,20 +12,26 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.ProgressBar;
+//import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-public class DJApp extends Activity {
+public class DJApp extends Activity implements WaveformView.WaveformListener{
 
 	private static final String MEDIA_PATH = new String("/sdcard/Music/");
 	private List<String> songs = new ArrayList<String>();
@@ -40,18 +49,74 @@ public class DJApp extends Activity {
 	private ImageButton prev1Button;
 	private ImageButton prev2Button;
 	private SeekBar faderSeekBar;
-	private SeekBar progressBar;
+//	private SeekBar progressBar;
 	private TextView nowPlayingText1;
 
 	private Handler handler;
 	private TimerTask testTask;
+
+	
+	
+	
+    private long mLoadingStartTime;
+    private long mLoadingLastUpdateTime;
+    private boolean mLoadingKeepGoing;
+    private CheapSoundFile mSoundFile;
+    private String mFilename;
+    private String mDstFilename;
+    private String mArtist;
+    private String mAlbum;
+    private String mGenre;
+    private String mTitle;
+    private int mYear;
+    private String mExtension;
+    private String mRecordingFilename;
+    private int mNewFileKind;
+    private boolean mWasGetContentIntent;
+    private WaveformView mWaveformView;
+    private boolean mKeyDown;
+    private String mCaption = "";
+    private int mWidth;
+    private int mMaxPos;
+    private int mStartPos;
+    private int mEndPos;
+    private boolean mStartVisible;
+    private boolean mEndVisible;
+    private int mLastDisplayedStartPos;
+    private int mLastDisplayedEndPos;
+    private int mOffset;
+    private int mOffsetGoal;
+    private int mFlingVelocity;
+    private int mPlayStartMsec;
+    private int mPlayStartOffset;
+    private int mPlayEndMsec;
+    private Handler mHandler;
+    private boolean mIsPlaying;
+    private MediaPlayer mPlayer;
+    private boolean mCanSeekAccurately;
+    private boolean mTouchDragging;
+    private float mTouchStart;
+    private int mTouchInitialOffset;
+    private int mTouchInitialStartPos;
+    private int mTouchInitialEndPos;
+    private long mWaveformTouchStartMsec;
+    private float mDensity;
+    private int mMarkerLeftInset;
+    private int mMarkerRightInset;
+    private int mMarkerTopOffset;
+    private int mMarkerBottomOffset;
+    private ProgressDialog mProgressDialog;
 
 	@Override
 	public void onCreate(Bundle icicle) {
 		super.onCreate(icicle);
 		setContentView(R.layout.main);
 
-		audioPlayer1.setVolume(0.5f);
+
+		mWaveformView = (WaveformView)findViewById(R.id.waveform);
+        mWaveformView.setListener(this);
+        
+        audioPlayer1.setVolume(0.5f);
 		audioPlayer2.setVolume(0.5f);
 
 		play1Button = ((ImageButton) findViewById(R.id.play1));
@@ -60,17 +125,17 @@ public class DJApp extends Activity {
 				if (audioPlayer1.getAudioFile() != "") {
 					if (audioPlayer1.isPlaying()) {
 						audioPlayer1.pause();
-						play1Button.setImageDrawable(getResources()
-								.getDrawable(R.drawable.playbutton));
+						play1Button.setSelected(false);
+						//play1Button.setImageDrawable(getResources().getDrawable(R.drawable.playbutton));
 					} else {
 						audioPlayer1.start();
-						play1Button.setImageDrawable(getResources()
-								.getDrawable(R.drawable.pausebutton));
+						play1Button.setSelected(true);
+						//play1Button.setImageDrawable(getResources().getDrawable(R.drawable.pausebutton));
 					}
 				}
 			}
 		});
-
+		
 		play2Button = ((ImageButton) findViewById(R.id.play2));
 		play2Button.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -140,7 +205,7 @@ public class DJApp extends Activity {
 		faderSeekBar.setProgress(50);
 		updateSongList();
 
-		progressBar = (SeekBar) findViewById(R.id.volume1);
+/*		progressBar = (SeekBar) findViewById(R.id.volume1);
 
 		progressBar.setProgress(0);
 		progressBar.setMax(100);
@@ -164,7 +229,7 @@ public class DJApp extends Activity {
 						if (fromUser)
 							audioPlayer1.seekTo(progress / 100f);
 					}
-				});
+				});*/
 	}
 
 	public void updateSongList() {
@@ -216,6 +281,54 @@ public class DJApp extends Activity {
 		final String duration = String.format("%d:%d", durationInSeconds / 60,
 				durationInSeconds % 60);
 
+        new Thread() {
+            public void run() {
+                try {
+                    mSoundFile = CheapSoundFile.create("/sdcard/Music/" + songs
+            				.get(currentPositionPlayer1));
+
+                    if (mSoundFile == null) {
+                        mProgressDialog.dismiss();
+                        String name = "mFile.getName().toLowerCase()";
+                        String[] components = name.split("\\.");
+                        String err;
+                        if (components.length < 2) {
+                            err = getResources().getString(
+                                R.string.error);
+                        } else {
+                            err = getResources().getString(
+                                R.string.error) + " " +
+                                components[components.length - 1];
+                        }
+                        final String finalErr = err;
+                        
+                        return;
+                    }
+                } catch (final Exception e) {
+                    mProgressDialog.dismiss();
+                    e.printStackTrace();
+                    return;
+                }
+                mProgressDialog.dismiss();
+                if (mLoadingKeepGoing) {
+                    Runnable runnable = new Runnable() {
+                            public void run() {
+                                finishOpeningSoundFile();
+                            }
+                        };
+                    mHandler.post(runnable);
+                } else {
+                	int bla=1;
+                }
+            }
+        }.start();
+        
+        if (mSoundFile != null) {
+            mWaveformView.setSoundFile(mSoundFile);
+            mWaveformView.recomputeHeights(mDensity);
+            mMaxPos = mWaveformView.maxPos();
+        }
+        
 		testTask = new TimerTask() {
 
 			@Override
@@ -231,8 +344,7 @@ public class DJApp extends Activity {
 								+ String.format("%d:%d", currentMinutes,
 										currentSeconds) + "/" + duration);
 
-				progressBar.setProgress((int) (audioPlayer1
-						.getCurrentPositionInPercent() * 100));
+//				progressBar.setProgress((int) (audioPlayer1.getCurrentPositionInPercent() * 100));
 
 				handler.postDelayed(testTask, 1000);
 			}
@@ -243,6 +355,31 @@ public class DJApp extends Activity {
 		handler.postDelayed(testTask, 1000);
 
 	}
+
+    private void finishOpeningSoundFile() {
+        mWaveformView.setSoundFile(mSoundFile);
+        mWaveformView.recomputeHeights(mDensity);
+
+        mMaxPos = mWaveformView.maxPos();
+        mLastDisplayedStartPos = -1;
+        mLastDisplayedEndPos = -1;
+
+        mTouchDragging = false;
+
+        mOffset = 0;
+        mOffsetGoal = 0;
+        mFlingVelocity = 0;
+        if (mEndPos > mMaxPos)
+            mEndPos = mMaxPos;
+
+        mCaption =
+            mSoundFile.getFiletype() + ", " +
+            mSoundFile.getSampleRate() + " Hz, " +
+            mSoundFile.getAvgBitrateKbps() + " kbps, " +
+            mMaxPos;
+
+        updateDisplay();
+    }
 
 	// private void playSong(String songPath) {
 	// try {
@@ -279,6 +416,238 @@ public class DJApp extends Activity {
 	// }
 	// }
 	//
+	
+
+
+    //
+    // WaveformListener
+    //
+
+    /**
+     * Every time we get a message that our waveform drew, see if we need to
+     * animate and trigger another redraw.
+     */
+    public void waveformDraw() {
+        mWidth = mWaveformView.getMeasuredWidth();
+        if (mOffsetGoal != mOffset && !mKeyDown)
+            updateDisplay();
+        else if (mIsPlaying) {
+            updateDisplay();
+        } else if (mFlingVelocity != 0) {
+            updateDisplay();
+        }
+    }
+
+    public void waveformTouchStart(float x) {
+        mTouchDragging = true;
+        mTouchStart = x;
+        mTouchInitialOffset = mOffset;
+        mFlingVelocity = 0;
+        mWaveformTouchStartMsec = System.currentTimeMillis();
+    }
+
+    public void waveformTouchMove(float x) {
+        mOffset = trap((int)(mTouchInitialOffset + (mTouchStart - x)));
+        updateDisplay();
+    }
+    
+    private int trap(int pos) {
+        if (pos < 0)
+            return 0;
+        if (pos > mMaxPos)
+            return mMaxPos;
+        return pos;
+    }
+    
+    public void waveformTouchEnd() {
+        mTouchDragging = false;
+        mOffsetGoal = mOffset;
+
+        long elapsedMsec = System.currentTimeMillis() -
+            mWaveformTouchStartMsec;
+        if (elapsedMsec < 300) {
+            if (mIsPlaying) {
+                int seekMsec = mWaveformView.pixelsToMillisecs(
+                    (int)(mTouchStart + mOffset));
+                if (seekMsec >= mPlayStartMsec &&
+                    seekMsec < mPlayEndMsec) {
+                    mPlayer.seekTo(seekMsec - mPlayStartOffset);
+                } else {
+                    handlePause();
+                }
+            } else {
+                onPlay((int)(mTouchStart + mOffset));
+            }
+        }
+    }
+
+
+    private synchronized void onPlay(int startPosition) {
+        if (mIsPlaying) {
+            handlePause();
+            return;
+        }
+
+        if (mPlayer == null) {
+            // Not initialized yet
+            return;
+        }
+
+        try {
+            mPlayStartMsec = mWaveformView.pixelsToMillisecs(startPosition);
+            if (startPosition < mStartPos) {
+                mPlayEndMsec = mWaveformView.pixelsToMillisecs(mStartPos);
+            } else if (startPosition > mEndPos) {
+                mPlayEndMsec = mWaveformView.pixelsToMillisecs(mMaxPos);
+            } else {
+                mPlayEndMsec = mWaveformView.pixelsToMillisecs(mEndPos);
+            }
+
+            mPlayStartOffset = 0;
+
+            int startFrame = mWaveformView.secondsToFrames(
+                mPlayStartMsec * 0.001);
+            int endFrame = mWaveformView.secondsToFrames(
+                mPlayEndMsec * 0.001);
+            int startByte = mSoundFile.getSeekableFrameOffset(startFrame);
+            int endByte = mSoundFile.getSeekableFrameOffset(endFrame);
+            if (mCanSeekAccurately && startByte >= 0 && endByte >= 0) {
+                try {
+                    mPlayer.reset();
+                    mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    FileInputStream subsetInputStream = new FileInputStream(
+                    		songs
+            				.get(currentPositionPlayer1));
+                    mPlayer.setDataSource(subsetInputStream.getFD(),
+                                          startByte, endByte - startByte);
+                    mPlayer.prepare();
+                    mPlayStartOffset = mPlayStartMsec;
+                } catch (Exception e) {
+                    System.out.println("Exception trying to play file subset");
+                    mPlayer.reset();
+                    mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                    mPlayer.setDataSource(songs
+            				.get(currentPositionPlayer1));
+                    mPlayer.prepare();
+                    mPlayStartOffset = 0;
+                }
+            }
+
+            mPlayer.setOnCompletionListener(new OnCompletionListener() {
+                    public synchronized void onCompletion(MediaPlayer arg0) {
+                        handlePause();
+                    }
+                });
+            mIsPlaying = true;
+
+            if (mPlayStartOffset == 0) {
+                mPlayer.seekTo(mPlayStartMsec);
+            }
+            mPlayer.start();
+            updateDisplay();
+        } catch (Exception e) {
+            showFinalAlert(e, R.string.error);
+            return;
+        }
+    }
+    
+    private void showFinalAlert(Exception e, int messageResourceId) {
+    	int bla = 0;
+    }
+    
+    private String getStackTrace(Exception e) {
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        PrintWriter writer = new PrintWriter(stream, true);
+        e.printStackTrace(writer);
+        return stream.toString();
+    }
+
+    private synchronized void handlePause() {
+        if (mPlayer != null && mPlayer.isPlaying()) {
+            mPlayer.pause();
+        }
+        mWaveformView.setPlayback(-1);
+        mIsPlaying = false;
+    }
+    
+    public void waveformFling(float vx) {
+        mTouchDragging = false;
+        mOffsetGoal = mOffset;
+        mFlingVelocity = (int)(-vx);
+        updateDisplay();
+    }
+    
+    private void setOffsetGoalNoUpdate(int offset) {
+        if (mTouchDragging) {
+            return;
+        }
+
+        mOffsetGoal = offset;
+        if (mOffsetGoal + mWidth / 2 > mMaxPos)
+            mOffsetGoal = mMaxPos - mWidth / 2;
+        if (mOffsetGoal < 0)
+            mOffsetGoal = 0;
+    }
+
+    private synchronized void updateDisplay() {
+        if (mIsPlaying) {
+            int now = mPlayer.getCurrentPosition() + mPlayStartOffset;
+            int frames = mWaveformView.millisecsToPixels(now);
+            mWaveformView.setPlayback(frames);
+            setOffsetGoalNoUpdate(frames - mWidth / 2);
+            if (now >= mPlayEndMsec) {
+                handlePause();
+            }
+        }
+
+        if (!mTouchDragging) {
+            int offsetDelta;
+
+            if (mFlingVelocity != 0) {
+                float saveVel = mFlingVelocity;
+
+                offsetDelta = mFlingVelocity / 30;
+                if (mFlingVelocity > 80) {
+                    mFlingVelocity -= 80;
+                } else if (mFlingVelocity < -80) {
+                    mFlingVelocity += 80;
+                } else {
+                    mFlingVelocity = 0;
+                }
+
+                mOffset += offsetDelta;
+
+                if (mOffset + mWidth / 2 > mMaxPos) {
+                    mOffset = mMaxPos - mWidth / 2;
+                    mFlingVelocity = 0;
+                }
+                if (mOffset < 0) {
+                    mOffset = 0;
+                    mFlingVelocity = 0;
+                }
+                mOffsetGoal = mOffset;
+            } else {
+                offsetDelta = mOffsetGoal - mOffset;
+
+                if (offsetDelta > 10)
+                    offsetDelta = offsetDelta / 10;
+                else if (offsetDelta > 0)
+                    offsetDelta = 1;
+                else if (offsetDelta < -10)
+                    offsetDelta = offsetDelta / 10;
+                else if (offsetDelta < 0)
+                    offsetDelta = -1;
+                else
+                    offsetDelta = 0;
+
+                mOffset += offsetDelta;
+            }
+        }
+
+        mWaveformView.setParameters(mStartPos, mEndPos, mOffset);
+        mWaveformView.invalidate();
+    }
+
 }
 
 class Mp3Filter implements FilenameFilter {
