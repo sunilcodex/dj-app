@@ -93,6 +93,25 @@ public class SongLibrary
 
 	}
 
+	public List<Song> getSongs(char character)
+	{
+
+		List<Song> list = new ArrayList<Song>();
+		if (character == '#')
+		{
+			for (Song song : this.allSongs)
+				if (Character.isDigit(song.getTitle().charAt(0)))
+					list.add(song);
+		}
+		else if (Character.isLetter(character))
+		{
+			for (Song song : this.allSongs)
+				if (song.getTitle().toLowerCase().charAt(0) == character)
+					list.add(song);
+		}
+		return list;
+	}
+
 	/**
 	 * Get a list of all songs
 	 * 

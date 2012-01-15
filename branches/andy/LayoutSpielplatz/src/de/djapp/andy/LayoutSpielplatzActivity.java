@@ -1,24 +1,22 @@
 package de.djapp.andy;
 
+import java.util.List;
+
 import android.app.Activity;
-import android.content.ClipData;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.DragEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnDragListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
-import android.widget.GridView;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
-import de.djapp.layout.SongListAdapter;
+import de.djapp.helper.FormatHelper;
+import de.djapp.main.Song;
 import de.djapp.main.SongLibrary;
-import de.djapp.main.SortBy;
 
 public class LayoutSpielplatzActivity extends Activity
 {
@@ -33,69 +31,120 @@ public class LayoutSpielplatzActivity extends Activity
 		this.songLibrary = new SongLibrary(getContentResolver());
 
 		LinearLayout parent = (LinearLayout) findViewById(R.id.centerNavigation);
-		LinearLayout view = (LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.songlist, null, false);
+		LinearLayout view = (LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.song_list, null, false);
 		parent.addView(view, new LinearLayout.LayoutParams(-1, -1));
 
-		final GridView songList = (GridView) view.findViewById(R.id.song_list);
-		songList.setAdapter(new SongListAdapter(this, this.songLibrary.getAllSongs(SortBy.TITLE)));
+		final LinearLayout songList = (LinearLayout) view.findViewById(R.id.song_list);
 
-		Spinner sortBySpinner = (Spinner) view.findViewById(R.id.spinner_sort_by);
-		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.sort_by_array, android.R.layout.simple_spinner_item);
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		sortBySpinner.setAdapter(adapter);
-
-		sortBySpinner.setOnItemSelectedListener(new OnItemSelectedListener()
+		char[] charArray = new char[]
 		{
+		'#', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+		};
 
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int pos, long id)
-			{
-				if (parent.getItemAtPosition(pos).toString().equals("Title"))
-					songList.setAdapter(new SongListAdapter(LayoutSpielplatzActivity.this, songLibrary.getAllSongs(SortBy.TITLE)));
-				else if (parent.getItemAtPosition(pos).toString().equals("Album"))
-					songList.setAdapter(new SongListAdapter(LayoutSpielplatzActivity.this, songLibrary.getAllSongs(SortBy.ALBUM)));
-				else if (parent.getItemAtPosition(pos).toString().equals("Artist"))
-					songList.setAdapter(new SongListAdapter(LayoutSpielplatzActivity.this, songLibrary.getAllSongs(SortBy.ARTIST)));
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> arg0)
-			{
-			}
-		});
-
-		songList.setOnItemLongClickListener(new OnItemLongClickListener()
+		for (int i = 0; i < charArray.length; i++)
 		{
+			List<Song> songs = this.songLibrary.getSongs(charArray[i]);
 
-			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view, int pos, long id)
+			if (!songs.isEmpty())
 			{
+				LinearLayout songGroup = (LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.song_group, null, false);
+				songList.addView(songGroup);
+				TextView groupTitle = (TextView) songGroup.findViewById(R.id.group_title);
+				// groupTitle.setLineColor("#334A7A");
+				groupTitle.setText("" + Character.toUpperCase(charArray[i]));
 
-				ClipData clipData = ClipData.newPlainText("", "" + pos);
-				View.DragShadowBuilder dsb = new View.DragShadowBuilder(view);
-				view.startDrag(clipData, dsb, view, 0);
+				TableLayout table = (TableLayout) songGroup.findViewById(R.id.group_table);
+				table.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+				LinearLayout columns = null;
 
-				return true;
-			}
-		});
-
-		TextView deckA = (TextView) findViewById(R.id.deckA);
-		deckA.setOnDragListener(new OnDragListener()
-		{
-
-			@Override
-			public boolean onDrag(View view, DragEvent event)
-			{
-				Log.i("LOG", "" + event.getAction());
-
-				switch (event.getAction())
+				TableRow row = null;
+				for (int songNumber = 0; songNumber < songs.size(); songNumber++)
 				{
-					case DragEvent.ACTION_DRAG_ENDED:
-						return true;
+					Song song = songs.get(songNumber);
+					LinearLayout songItem = this.getSongItem((LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.song_item, null, false), song);
+
+					if (songNumber % 2 == 0)
+					{
+						row = new TableRow(getBaseContext());
+						row.addView(songItem, new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1.0f));
+					}
+					else
+					{
+						row.addView(songItem, new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1.0f));
+						table.addView(row, new TableLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+
+						if (songNumber + 1 != songs.size())
+						{
+							View hr = new View(getBaseContext());
+							hr.setBackgroundColor(Color.parseColor("#404040"));
+							table.addView(hr, new TableLayout.LayoutParams(LayoutParams.MATCH_PARENT, 1));
+						}
+					}
+				}
+				if (songs.size() % 2 == 1)
+				{
+					Song song = songs.get(songs.size() - 1);
+					LinearLayout songItem = this.getSongItem((LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.song_item, null, false), song);
+					row = new TableRow(getBaseContext());
+					row.addView(songItem, new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1.0f));
+					row.addView(new View(getBaseContext()), new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1.0f));
+					table.addView(row, new TableLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 				}
 
-				return false;
+				// int col = 0;
+				// for (Song song : songs)
+				// {
+				// if (col % 2 == 0)
+				// {
+				// columns = new LinearLayout(getBaseContext());
+				// columns.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+				// columns.setOrientation(LinearLayout.HORIZONTAL);
+				// }
+				//
+				// LinearLayout songItem = (LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.song_item, null, false);
+				// // songItem.setLineColor("#FF0000");
+				// TextView songTitle = (TextView) songItem.findViewById(R.id.song_title);
+				// songTitle.setText(song.getTitle());
+				// TextView songArtist = (TextView) songItem.findViewById(R.id.song_artist);
+				// songArtist.setText(song.getArtist());
+				// TextView songDuration = (TextView) songItem.findViewById(R.id.song_duration);
+				// songDuration.setText(FormatHelper.formatDuration(song.getDuration()));
+				// ImageView songAlbumArt = (ImageView) songItem.findViewById(R.id.album_art);
+				//
+				// if (song.getAlbumArtUri() == null)
+				// songAlbumArt.setImageResource(R.drawable.art_not_found);
+				// else
+				// songAlbumArt.setImageURI(Uri.parse(song.getAlbumArtUri()));
+				//
+				// songItem.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f));
+				// columns.addView(songItem);
+				//
+				// if (col % 2 == 1)
+				// songGroup.addView(columns);
+				// if (songs.indexOf(song) == songs.size() - 1)
+				// songItem.findViewById(R.id.song_item_border).setVisibility(View.INVISIBLE);
+				// col++;
+				// }
 			}
-		});
+		}
+	}
+
+	private LinearLayout getSongItem(LinearLayout songItem, Song song)
+	{
+		// songItem.setLineColor("#FF0000");
+		TextView songTitle = (TextView) songItem.findViewById(R.id.song_title);
+		songTitle.setText(song.getTitle());
+		TextView songArtist = (TextView) songItem.findViewById(R.id.song_artist);
+		songArtist.setText(song.getArtist());
+		TextView songDuration = (TextView) songItem.findViewById(R.id.song_duration);
+		songDuration.setText(FormatHelper.formatDuration(song.getDuration()));
+		ImageView songAlbumArt = (ImageView) songItem.findViewById(R.id.album_art);
+
+		if (song.getAlbumArtUri() == null)
+			songAlbumArt.setImageResource(R.drawable.art_not_found);
+		else
+			songAlbumArt.setImageURI(Uri.parse(song.getAlbumArtUri()));
+
+		return songItem;
 	}
 }
