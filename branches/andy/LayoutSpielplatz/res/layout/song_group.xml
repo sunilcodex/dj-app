@@ -9,7 +9,7 @@
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:background="@drawable/group_header_border"
-	    android:textColor="#334A7A"
+	  	android:textColor="#334A7A"
 	  	android:shadowRadius="1"
 	  	android:paddingLeft="9dp"
 	  	android:paddingTop="4dp"

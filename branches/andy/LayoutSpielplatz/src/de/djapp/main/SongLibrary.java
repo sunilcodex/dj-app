@@ -34,6 +34,8 @@ public class SongLibrary
 	AudioColumns.ARTIST, // 3
 	AudioColumns.ALBUM_ID, // 4
 	AudioColumns.DURATION, // 5
+	AudioColumns.ALBUM_KEY, // 6
+
 	};
 
 	/**
@@ -47,7 +49,7 @@ public class SongLibrary
 		this.allSongs = new ArrayList<Song>();
 
 		Uri allSongsUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-		Cursor cursor = contentResolver.query(allSongsUri, COLUMNS, "is_music=1", null, null);
+		Cursor cursor = contentResolver.query(allSongsUri, COLUMNS, "is_music=1", null, AudioColumns.TITLE + " ASC");
 
 		if (cursor == null)
 		{
@@ -68,6 +70,7 @@ public class SongLibrary
 				String artist = cursor.getString(3);
 				long albumId = cursor.getLong(4);
 				long duration = cursor.getLong(5);
+				String albumKey = cursor.getString(6);
 
 				Cursor albumFetcher = contentResolver.query(ContentUris.withAppendedId(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, albumId), new String[]
 				{
@@ -85,12 +88,12 @@ public class SongLibrary
 				song.setAlbum(album);
 				song.setAlbumArtUri(albumArtUri);
 				song.setDuration(duration);
+				song.setAlbumKey(albumKey);
 
 				this.allSongs.add(song);
 			}
 			while (cursor.moveToNext());
 		}
-
 	}
 
 	public List<Song> getSongs(char character)
@@ -110,6 +113,15 @@ public class SongLibrary
 					list.add(song);
 		}
 		return list;
+	}
+
+	public List<Song> getAllSongs(String albumKey)
+	{
+		List<Song> songsPerAlbum = new ArrayList<Song>();
+		for (Song song : this.allSongs)
+			if (song.getAlbumId().equals(albumKey))
+				songsPerAlbum.add(song);
+		return songsPerAlbum;
 	}
 
 	/**
