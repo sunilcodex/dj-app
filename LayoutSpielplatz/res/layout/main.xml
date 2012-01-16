@@ -43,12 +43,14 @@
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
 	            android:text="Title"
-	            android:onClick="showSongList"
+	            android:onClick="showTitle"
 	            />
 	        <Button
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
 	            android:text="Artist"
+	            android:onClick="showArtist"
+	            android:enabled="false"
 	            />
 	        <Button
 	            android:id="@+id/btn_show_album"
@@ -67,11 +69,13 @@
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
 	            android:text="Favorites"
+	            android:enabled="false"
 	            />
 	        <Button
 	            android:layout_width="match_parent"
 	            android:layout_height="wrap_content"
 	            android:text="Tags"
+	            android:enabled="false"
 	            />
 	        	        
 	        

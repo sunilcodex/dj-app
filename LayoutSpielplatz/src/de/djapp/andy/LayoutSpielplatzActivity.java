@@ -30,6 +30,7 @@ import de.djapp.main.Album;
 import de.djapp.main.AlbumLibrary;
 import de.djapp.main.Song;
 import de.djapp.main.SongLibrary;
+import de.djapp.main.SortBy;
 
 public class LayoutSpielplatzActivity extends Activity
 {
@@ -48,7 +49,7 @@ public class LayoutSpielplatzActivity extends Activity
 		this.albumLibrary = new AlbumLibrary(getContentResolver(), this.songLibrary);
 
 		this.parent = (LinearLayout) findViewById(R.id.centerNavigation);
-		this.showSongList(null);
+		this.showTitle(null);
 		// this.showAlbum(null);
 		// this.showGenre(null);
 	}
@@ -278,7 +279,17 @@ public class LayoutSpielplatzActivity extends Activity
 		return songItem;
 	}
 
-	public void showSongList(View v)
+	public void showTitle(View v)
+	{
+		this.showSongList(SortBy.TITLE);
+	}
+
+	public void showArtist(View v)
+	{
+		this.showSongList(SortBy.ARTIST);
+	}
+
+	private void showSongList(SortBy sortBy)
 	{
 		this.parent.removeAllViews();
 		LinearLayout songListLayout = (LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.song_list, null, false);
@@ -341,6 +352,5 @@ public class LayoutSpielplatzActivity extends Activity
 				}
 			}
 		}
-
 	}
 }
