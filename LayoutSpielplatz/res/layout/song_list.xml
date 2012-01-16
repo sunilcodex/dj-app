@@ -30,7 +30,6 @@
 	    >
 		<LinearLayout 
 		    android:id="@+id/song_list"
-		    android:background="#FFFFFF"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:orientation="vertical"

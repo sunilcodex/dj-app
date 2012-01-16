@@ -3,24 +3,40 @@ package de.djapp.andy;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.ClipData;
+import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnLongClickListener;
+import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.BaseAdapter;
+import android.widget.Gallery;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import de.djapp.helper.FormatHelper;
+import de.djapp.layout.SongListAdapter;
+import de.djapp.main.Album;
+import de.djapp.main.AlbumLibrary;
 import de.djapp.main.Song;
 import de.djapp.main.SongLibrary;
 
 public class LayoutSpielplatzActivity extends Activity
 {
 	private SongLibrary songLibrary;
+	private AlbumLibrary albumLibrary;
+	private LinearLayout parent;
+	private int mGalleryItemBackground;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -29,12 +45,246 @@ public class LayoutSpielplatzActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.main);
 		this.songLibrary = new SongLibrary(getContentResolver());
+		this.albumLibrary = new AlbumLibrary(getContentResolver(), this.songLibrary);
 
-		LinearLayout parent = (LinearLayout) findViewById(R.id.centerNavigation);
-		LinearLayout view = (LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.song_list, null, false);
-		parent.addView(view, new LinearLayout.LayoutParams(-1, -1));
+		this.parent = (LinearLayout) findViewById(R.id.centerNavigation);
+		this.showSongList(null);
+		// this.showAlbum(null);
+		// this.showGenre(null);
+	}
 
-		final LinearLayout songList = (LinearLayout) view.findViewById(R.id.song_list);
+	public void showAlbum(View v)
+	{
+		this.parent.removeAllViews();
+		final List<Album> allAlbums = this.albumLibrary.getAllAlbums();
+
+		LinearLayout albumLayout = (LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.album_browser, null);
+		this.parent.addView(albumLayout, new LinearLayout.LayoutParams(-1, -1));
+
+		Gallery gallery = (Gallery) albumLayout.findViewById(R.id.album_gallery);
+		TypedArray attr = getBaseContext().obtainStyledAttributes(R.styleable.GalleryBackground);
+		this.mGalleryItemBackground = attr.getResourceId(R.styleable.GalleryBackground_android_galleryItemBackground, 0);
+		attr.recycle();
+
+		gallery.setAdapter(new AlbumAdapter(allAlbums, getBaseContext()));
+
+		final TextView albumTitle = (TextView) albumLayout.findViewById(R.id.album_item_title);
+		final TextView albumArtist = (TextView) albumLayout.findViewById(R.id.album_item_artist);
+
+		gallery.setCallbackDuringFling(true);
+		gallery.setOnItemSelectedListener(new OnItemSelectedListener()
+		{
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+			{
+				Album album = allAlbums.get(position);
+				albumTitle.setText(album.getTitle());
+				albumArtist.setText(album.getArtist());
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> v)
+			{
+
+			}
+		});
+	}
+
+	public void showGenre(View v)
+	{
+		this.parent.removeAllViews();
+		final List<Album> allAlbums = this.albumLibrary.getAllAlbums();
+
+		LinearLayout albumLayout = (LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.album_browser2, null);
+		this.parent.addView(albumLayout, new LinearLayout.LayoutParams(-1, -1));
+
+		Gallery gallery = (Gallery) albumLayout.findViewById(R.id.album_gallery);
+		TypedArray attr = getBaseContext().obtainStyledAttributes(R.styleable.GalleryBackground);
+		this.mGalleryItemBackground = attr.getResourceId(R.styleable.GalleryBackground_android_galleryItemBackground, 0);
+		attr.recycle();
+
+		gallery.setAdapter(new AlbumAdapter2(allAlbums, getBaseContext()));
+
+		final TextView albumTitle = (TextView) albumLayout.findViewById(R.id.album_item_title_artist);
+		final ListView songList = (ListView) albumLayout.findViewById(R.id.album_songlist);
+
+		gallery.setCallbackDuringFling(true);
+		gallery.setOnItemSelectedListener(new OnItemSelectedListener()
+		{
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
+			{
+				Album album = allAlbums.get(position);
+				albumTitle.setText(album.getTitle() + " - " + album.getArtist());
+				songList.setAdapter(new SongListAdapter(LayoutSpielplatzActivity.this, album.getSongs()));
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> v)
+			{
+
+			}
+		});
+	}
+
+	private class AlbumAdapter extends BaseAdapter
+	{
+
+		private List<Album> allAlbums;
+		private Context context;
+
+		public AlbumAdapter(List<Album> albums, Context c)
+		{
+			this.allAlbums = albums;
+			this.context = c;
+		}
+
+		@Override
+		public int getCount()
+		{
+			return this.allAlbums.size();
+		}
+
+		@Override
+		public Object getItem(int i)
+		{
+			return this.allAlbums.get(i);
+		}
+
+		@Override
+		public long getItemId(int i)
+		{
+			return i;
+		}
+
+		@Override
+		public View getView(int i, View convertView, ViewGroup parent)
+		{
+			ImageView imageView = new ImageView(getBaseContext());
+			imageView.setLayoutParams(new Gallery.LayoutParams(300, 300));
+			imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+			imageView.setBackgroundResource(LayoutSpielplatzActivity.this.mGalleryItemBackground);
+
+			Album album = this.allAlbums.get(i);
+			if (album.getAlbumArtUri() == null)
+				imageView.setImageResource(R.drawable.art_not_found);
+			else
+				imageView.setImageURI(Uri.parse(album.getAlbumArtUri()));
+
+			return imageView;
+		}
+	}
+
+	private class AlbumAdapter2 extends BaseAdapter
+	{
+
+		private List<Album> allAlbums;
+		private Context context;
+
+		public AlbumAdapter2(List<Album> albums, Context c)
+		{
+			this.allAlbums = albums;
+			this.context = c;
+		}
+
+		@Override
+		public int getCount()
+		{
+			return this.allAlbums.size();
+		}
+
+		@Override
+		public Object getItem(int i)
+		{
+			return this.allAlbums.get(i);
+		}
+
+		@Override
+		public long getItemId(int i)
+		{
+			return i;
+		}
+
+		@Override
+		public View getView(int i, View convertView, ViewGroup parent)
+		{
+			ImageView imageView = new ImageView(getBaseContext());
+			imageView.setLayoutParams(new Gallery.LayoutParams(100, 100));
+			// imageView.setScaleType(ImageView.ScaleType.);
+			imageView.setBackgroundResource(LayoutSpielplatzActivity.this.mGalleryItemBackground);
+
+			Album album = this.allAlbums.get(i);
+			if (album.getAlbumArtUri() == null)
+				imageView.setImageResource(R.drawable.art_not_found);
+			else
+				imageView.setImageURI(Uri.parse(album.getAlbumArtUri()));
+
+			return imageView;
+		}
+	}
+
+	private LinearLayout getSongItem(final LinearLayout songItem, Song song)
+	{
+		// songItem.setLineColor("#FF0000");
+
+		TextView songTitle = (TextView) songItem.findViewById(R.id.song_title);
+		songTitle.setText(song.getTitle());
+		TextView songArtist = (TextView) songItem.findViewById(R.id.song_artist);
+		songArtist.setText(song.getArtist());
+		final TextView songDuration = (TextView) songItem.findViewById(R.id.song_duration);
+		songDuration.setText(FormatHelper.formatDuration(song.getDuration()));
+		ImageView songAlbumArt = (ImageView) songItem.findViewById(R.id.album_art);
+
+		if (song.getAlbumArtUri() == null)
+			songAlbumArt.setImageResource(R.drawable.art_not_found);
+		else
+			songAlbumArt.setImageURI(Uri.parse(song.getAlbumArtUri()));
+
+		final OnLongClickListener dragListener = new OnLongClickListener()
+		{
+
+			@Override
+			public boolean onLongClick(View v)
+			{
+				songDuration.setVisibility(View.INVISIBLE);
+				ClipData clipData = ClipData.newPlainText("", "" + v.getContentDescription());
+				View.DragShadowBuilder dsb = new View.DragShadowBuilder(songItem);
+				v.startDrag(clipData, dsb, v, 0);
+				songDuration.setVisibility(View.VISIBLE);
+
+				return true;
+			}
+		};
+
+		songItem.setOnLongClickListener(dragListener);
+
+		OnLongClickListener passThroughListener = new OnLongClickListener()
+		{
+
+			@Override
+			public boolean onLongClick(View v)
+			{
+				return dragListener.onLongClick(v);
+			}
+		};
+
+		songDuration.setOnLongClickListener(passThroughListener);
+		songArtist.setOnLongClickListener(passThroughListener);
+		songTitle.setOnLongClickListener(passThroughListener);
+		songAlbumArt.setOnLongClickListener(passThroughListener);
+
+		return songItem;
+	}
+
+	public void showSongList(View v)
+	{
+		this.parent.removeAllViews();
+		LinearLayout songListLayout = (LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.song_list, null, false);
+		this.parent.addView(songListLayout, new LinearLayout.LayoutParams(-1, -1));
+
+		final LinearLayout songList = (LinearLayout) songListLayout.findViewById(R.id.song_list);
 
 		char[] charArray = new char[]
 		{
@@ -55,7 +305,6 @@ public class LayoutSpielplatzActivity extends Activity
 
 				TableLayout table = (TableLayout) songGroup.findViewById(R.id.group_table);
 				table.setLayoutParams(new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
-				LinearLayout columns = null;
 
 				TableRow row = null;
 				for (int songNumber = 0; songNumber < songs.size(); songNumber++)
@@ -90,61 +339,8 @@ public class LayoutSpielplatzActivity extends Activity
 					row.addView(new View(getBaseContext()), new TableRow.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1.0f));
 					table.addView(row, new TableLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
 				}
-
-				// int col = 0;
-				// for (Song song : songs)
-				// {
-				// if (col % 2 == 0)
-				// {
-				// columns = new LinearLayout(getBaseContext());
-				// columns.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-				// columns.setOrientation(LinearLayout.HORIZONTAL);
-				// }
-				//
-				// LinearLayout songItem = (LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.song_item, null, false);
-				// // songItem.setLineColor("#FF0000");
-				// TextView songTitle = (TextView) songItem.findViewById(R.id.song_title);
-				// songTitle.setText(song.getTitle());
-				// TextView songArtist = (TextView) songItem.findViewById(R.id.song_artist);
-				// songArtist.setText(song.getArtist());
-				// TextView songDuration = (TextView) songItem.findViewById(R.id.song_duration);
-				// songDuration.setText(FormatHelper.formatDuration(song.getDuration()));
-				// ImageView songAlbumArt = (ImageView) songItem.findViewById(R.id.album_art);
-				//
-				// if (song.getAlbumArtUri() == null)
-				// songAlbumArt.setImageResource(R.drawable.art_not_found);
-				// else
-				// songAlbumArt.setImageURI(Uri.parse(song.getAlbumArtUri()));
-				//
-				// songItem.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.5f));
-				// columns.addView(songItem);
-				//
-				// if (col % 2 == 1)
-				// songGroup.addView(columns);
-				// if (songs.indexOf(song) == songs.size() - 1)
-				// songItem.findViewById(R.id.song_item_border).setVisibility(View.INVISIBLE);
-				// col++;
-				// }
 			}
 		}
-	}
 
-	private LinearLayout getSongItem(LinearLayout songItem, Song song)
-	{
-		// songItem.setLineColor("#FF0000");
-		TextView songTitle = (TextView) songItem.findViewById(R.id.song_title);
-		songTitle.setText(song.getTitle());
-		TextView songArtist = (TextView) songItem.findViewById(R.id.song_artist);
-		songArtist.setText(song.getArtist());
-		TextView songDuration = (TextView) songItem.findViewById(R.id.song_duration);
-		songDuration.setText(FormatHelper.formatDuration(song.getDuration()));
-		ImageView songAlbumArt = (ImageView) songItem.findViewById(R.id.album_art);
-
-		if (song.getAlbumArtUri() == null)
-			songAlbumArt.setImageResource(R.drawable.art_not_found);
-		else
-			songAlbumArt.setImageURI(Uri.parse(song.getAlbumArtUri()));
-
-		return songItem;
 	}
 }
