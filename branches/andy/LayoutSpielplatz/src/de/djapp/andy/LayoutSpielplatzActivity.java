@@ -226,12 +226,10 @@ public class LayoutSpielplatzActivity extends Activity
 	{
 
 		private List<Album> allAlbums;
-		private Context context;
 
 		public AlbumAdapter2(List<Album> albums, Context c)
 		{
 			this.allAlbums = albums;
-			this.context = c;
 		}
 
 		@Override
