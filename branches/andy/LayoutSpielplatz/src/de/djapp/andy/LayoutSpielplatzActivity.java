@@ -14,10 +14,13 @@ import android.view.View;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.BaseAdapter;
 import android.widget.Gallery;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -58,38 +61,75 @@ public class LayoutSpielplatzActivity extends Activity
 	{
 		this.parent.removeAllViews();
 		final List<Album> allAlbums = this.albumLibrary.getAllAlbums();
+		allAlbums.add(0, null);
+		allAlbums.add(0, null);
+		allAlbums.add(0, null);
+		allAlbums.add(null);
+		allAlbums.add(null);
+		allAlbums.add(null);
 
 		LinearLayout albumLayout = (LinearLayout) LayoutInflater.from(getBaseContext()).inflate(R.layout.album_browser, null);
 		this.parent.addView(albumLayout, new LinearLayout.LayoutParams(-1, -1));
 
-		Gallery gallery = (Gallery) albumLayout.findViewById(R.id.album_gallery);
+		final ListView stackView = (ListView) albumLayout.findViewById(R.id.album_stack_view);
+
+		// stackView.setDivider(null);
+		// stackView.setDividerHeight(0);
 		TypedArray attr = getBaseContext().obtainStyledAttributes(R.styleable.GalleryBackground);
 		this.mGalleryItemBackground = attr.getResourceId(R.styleable.GalleryBackground_android_galleryItemBackground, 0);
 		attr.recycle();
 
-		gallery.setAdapter(new AlbumAdapter(allAlbums, getBaseContext()));
+		final AlbumAdapter albumAdapter = new AlbumAdapter(allAlbums, getBaseContext());
+		stackView.setAdapter(albumAdapter);
 
 		final TextView albumTitle = (TextView) albumLayout.findViewById(R.id.album_item_title);
-		final TextView albumArtist = (TextView) albumLayout.findViewById(R.id.album_item_artist);
+		final ListView songList = (ListView) albumLayout.findViewById(R.id.album_item_list);
 
-		gallery.setCallbackDuringFling(true);
-		gallery.setOnItemSelectedListener(new OnItemSelectedListener()
+		stackView.setDivider(null);
+
+		final AbsListView.OnScrollListener onScrollListener = new AbsListView.OnScrollListener()
+		{
+			private View lastView = null;
+
+			@Override
+			public void onScrollStateChanged(AbsListView view, int scrollState)
+			{
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount)
+			{
+				int position = firstVisibleItem + visibleItemCount / 2;
+				if (allAlbums.get(position) != null)
+				{
+					View currentView = stackView.getChildAt(visibleItemCount / 2);
+
+					if (lastView != null && lastView != currentView)
+					{
+						lastView.setBackgroundDrawable(null);
+						albumTitle.setText(allAlbums.get(position).getTitle() + " - " + allAlbums.get(position).getArtist());
+						songList.setAdapter(new SongListAdapter(LayoutSpielplatzActivity.this, allAlbums.get(position).getSongs()));
+					}
+					currentView.setBackgroundResource(R.drawable.picture_border);
+					lastView = currentView;
+				}
+			}
+		};
+		stackView.setOnScrollListener(onScrollListener);
+
+		stackView.setOnItemClickListener(new OnItemClickListener()
 		{
 
 			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
-			{
-				Album album = allAlbums.get(position);
-				albumTitle.setText(album.getTitle());
-				albumArtist.setText(album.getArtist());
-			}
-
-			@Override
-			public void onNothingSelected(AdapterView<?> v)
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 			{
 
+				stackView.setSelection(position - 3);
 			}
 		});
+
 	}
 
 	public void showGenre(View v)
@@ -164,16 +204,20 @@ public class LayoutSpielplatzActivity extends Activity
 		public View getView(int i, View convertView, ViewGroup parent)
 		{
 			ImageView imageView = new ImageView(getBaseContext());
-			imageView.setLayoutParams(new Gallery.LayoutParams(300, 300));
+			imageView.setLayoutParams(new GridView.LayoutParams(80, 80));
 			imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-			imageView.setBackgroundResource(LayoutSpielplatzActivity.this.mGalleryItemBackground);
+			// imageView.setBackgroundResource(R.drawable.picture_border);
 
 			Album album = this.allAlbums.get(i);
-			if (album.getAlbumArtUri() == null)
-				imageView.setImageResource(R.drawable.art_not_found);
+			if (album != null)
+			{
+				if (album.getAlbumArtUri() == null)
+					imageView.setImageResource(R.drawable.art_not_found);
+				else
+					imageView.setImageURI(Uri.parse(album.getAlbumArtUri()));
+			}
 			else
-				imageView.setImageURI(Uri.parse(album.getAlbumArtUri()));
-
+				imageView.setImageDrawable(null);
 			return imageView;
 		}
 	}

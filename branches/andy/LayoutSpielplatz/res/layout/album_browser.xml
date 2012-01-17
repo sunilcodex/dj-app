@@ -2,25 +2,44 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     >
-	<Gallery 
-	    android:id="@+id/album_gallery"
-	    android:layout_width="match_parent"
-	    android:layout_height="300dp"
+    <!-- 
+    <GridView 
+	    android:id="@+id/album_stack_view"
+	    android:layout_width="80dp"
+	    android:layout_height="match_parent"
+	    android:padding="0dp"
+	    android:layout_marginRight="8dp"
+	    android:horizontalSpacing="0dp"
+	    android:numColumns="1"
 	    />
+	     -->
+	<ListView 
+	    android:id="@+id/album_stack_view"
+	    android:layout_width="90dp"
+	    android:layout_height="match_parent"
+	    android:dividerHeight="0dp"
+	    android:padding="3dp"
+	    android:layout_marginRight="8dp"
+	    />
+	<LinearLayout
+	    android:orientation="vertical"
+	    android:layout_width="0dp"
+	    android:layout_height="match_parent"
+	    android:layout_weight="1"
+	    >
 	<TextView
 	    android:id="@+id/album_item_title"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:gravity="center_horizontal"
-	    android:textSize="30sp"
+	    android:textSize="25sp"
 	    />
-	<TextView
-	    android:id="@+id/album_item_artist"
+	<ListView 
+	    android:id="@+id/album_item_list"
 	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:gravity="center_horizontal"
-	    android:textSize="20sp"
+	    android:layout_height="match_parent"
 	    />
+	</LinearLayout>
 </LinearLayout>
