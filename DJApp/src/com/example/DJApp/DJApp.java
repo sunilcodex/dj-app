@@ -204,7 +204,9 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
 
 		faderSeekBar.setProgress(50);
 		updateSongList();
-
+		
+		mHandler = new Handler();
+		
 /*		progressBar = (SeekBar) findViewById(R.id.volume1);
 
 		progressBar.setProgress(0);
@@ -281,12 +283,25 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
 		final String duration = String.format("%d:%d", durationInSeconds / 60,
 				durationInSeconds % 60);
 
+        final CheapSoundFile.ProgressListener listener =
+                new CheapSoundFile.ProgressListener() {
+                    public boolean reportProgress(double fractionComplete) {
+                        long now = System.currentTimeMillis();
+                        if (now - mLoadingLastUpdateTime > 100) {
+                            mLoadingLastUpdateTime = now;
+                        }
+                        return mLoadingKeepGoing;
+                    }
+                };
+
         new Thread() {
             public void run() {
                 try {
+                	mLoadingKeepGoing = true;
                     mSoundFile = CheapSoundFile.create("/sdcard/Music/" + songs
-            				.get(currentPositionPlayer1));
+            				.get(currentPositionPlayer1), listener);
 
+                            
                     if (mSoundFile == null) {
                         mProgressDialog.dismiss();
                         String name = "mFile.getName().toLowerCase()";
@@ -309,7 +324,7 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
                     e.printStackTrace();
                     return;
                 }
-                mProgressDialog.dismiss();
+               // mProgressDialog.dismiss();
                 if (mLoadingKeepGoing) {
                     Runnable runnable = new Runnable() {
                             public void run() {
@@ -322,12 +337,6 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
                 }
             }
         }.start();
-        
-        if (mSoundFile != null) {
-            mWaveformView.setSoundFile(mSoundFile);
-            mWaveformView.recomputeHeights(mDensity);
-            mMaxPos = mWaveformView.maxPos();
-        }
         
 		testTask = new TimerTask() {
 

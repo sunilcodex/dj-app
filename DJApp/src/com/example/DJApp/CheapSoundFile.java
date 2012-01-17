@@ -40,7 +40,15 @@ import java.util.HashMap;
  */
 public class CheapSoundFile {
 
-
+    public interface ProgressListener {
+        /**
+         * Will be called by the CheapSoundFile subclass periodically
+         * with values between 0.0 and 1.0.  Return true to continue
+         * loading the file, and false to cancel.
+         */
+        boolean reportProgress(double fractionComplete);
+    }
+    
     public interface Factory {
         public CheapSoundFile create();
         public String[] getSupportedExtensions();
@@ -72,7 +80,7 @@ public class CheapSoundFile {
          *
          * TODO: make this more modular rather than hardcoding the logic
          */
-    public static CheapSoundFile create(String fileName)
+    public static CheapSoundFile create(String fileName, ProgressListener progressListener)
         throws java.io.FileNotFoundException,
                java.io.IOException {
         File f = new File(fileName);
@@ -89,6 +97,7 @@ public class CheapSoundFile {
             return null;
         }
         CheapSoundFile soundFile = factory.create();
+        soundFile.setProgressListener(progressListener);
         soundFile.ReadFile(f);
         return soundFile;
     }
@@ -111,10 +120,15 @@ public class CheapSoundFile {
     }
 
     protected File mInputFile = null;
+    protected ProgressListener mProgressListener = null;
 
     protected CheapSoundFile() {
     }
 
+    public void setProgressListener(ProgressListener progressListener) {
+        mProgressListener = progressListener;
+    }
+    
     public void ReadFile(File inputFile)
         throws java.io.FileNotFoundException,
                java.io.IOException {

@@ -73,7 +73,7 @@
             </LinearLayout>
 <com.example.DJApp.WaveformView android:id="@+id/waveform"
        android:layout_width="fill_parent"
-       android:layout_height="200dp" />
+       android:layout_height="105dp" />
 
 </LinearLayout>
 

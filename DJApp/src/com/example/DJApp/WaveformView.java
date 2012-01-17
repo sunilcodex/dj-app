@@ -302,6 +302,10 @@ public class WaveformView extends View {
         if (mSoundFile == null)
             return;
 
+        boolean zoomedOut = true;
+        if(zoomedOut)
+        	mZoomLevel = 1;
+        
         if (mHeightsAtThisZoomLevel == null)
             computeIntsForThisZoomLevel();
 
@@ -315,72 +319,149 @@ public class WaveformView extends View {
         if (width > measuredWidth)
             width = measuredWidth;
 
-        // Draw grid
-        double onePixelInSecs = pixelsToSeconds(1);
-        boolean onlyEveryFiveSecs = (onePixelInSecs > 1.0 / 50.0);
-        double fractionalSecs = mOffset * onePixelInSecs;
-        int integerSecs = (int) fractionalSecs;
-        int i = 0;
-        while (i < width) {
-            i++;
-            fractionalSecs += onePixelInSecs;
-            int integerSecsNew = (int) fractionalSecs;
-            if (integerSecsNew != integerSecs) {
-                integerSecs = integerSecsNew;
-                if (!onlyEveryFiveSecs || 0 == (integerSecs % 5)) {
-                    canvas.drawLine(i, 0, i, measuredHeight, mGridPaint);
-                }
-            }
+        
+        if(!zoomedOut)
+        {
+	        // Draw grid
+	        double onePixelInSecs = pixelsToSeconds(1);
+	        boolean onlyEveryFiveSecs = (onePixelInSecs > 1.0 / 50.0);
+	        double fractionalSecs = mOffset * onePixelInSecs;
+	        int integerSecs = (int) fractionalSecs;
+	        int i = 0;
+	
+	        while (i < width) {
+	           i++;
+	            fractionalSecs += onePixelInSecs;
+	            int integerSecsNew = (int) fractionalSecs;
+	            if (integerSecsNew != integerSecs) {
+	                integerSecs = integerSecsNew;
+	                if (!onlyEveryFiveSecs || 0 == (integerSecs % 5)) {
+	                    canvas.drawLine(i, 0, i, measuredHeight, mGridPaint);
+	                }
+	            }
+	        }
+
+	        // Draw waveform
+	        for (i = 0; i < width; i++) {
+	            Paint paint;
+	            if (i + start >= mSelectionStart &&
+	                i + start < mSelectionEnd) {
+	                paint = mSelectedLinePaint;
+	            } else {
+	                drawWaveformLine(canvas, i, 0, measuredHeight,
+	                                 mUnselectedBkgndLinePaint);
+	                paint = mUnselectedLinePaint;
+	            }
+	            drawWaveformLine(
+	                canvas, i,
+	                ctr - mHeightsAtThisZoomLevel[start + i],
+	                ctr + 1 + mHeightsAtThisZoomLevel[start + i],
+	                paint);
+	
+	            if (i + start == mPlaybackPos) {
+	                canvas.drawLine(i, 0, i, measuredHeight, mPlaybackLinePaint);
+	            }
+	        }
+	
+	        // If we can see the right edge of the waveform, draw the
+	        // non-waveform area to the right as unselected
+	        for (i = width; i < measuredWidth; i++) {
+	            drawWaveformLine(canvas, i, 0, measuredHeight,
+	                             mUnselectedBkgndLinePaint);            
+	        }
+	
+	        // Draw borders
+	        canvas.drawLine(
+	            mSelectionStart - mOffset + 0.5f, 30,
+	            mSelectionStart - mOffset + 0.5f, measuredHeight,
+	            mBorderLinePaint);
+	        canvas.drawLine(
+	            mSelectionEnd - mOffset + 0.5f, 0,
+	            mSelectionEnd - mOffset + 0.5f, measuredHeight - 30,
+	            mBorderLinePaint);
+	
+	        // Draw timecode
+	        double timecodeIntervalSecs = 1.0;
+	        if (timecodeIntervalSecs / onePixelInSecs < 50) {
+	            timecodeIntervalSecs = 5.0;
+	        }
+	        if (timecodeIntervalSecs / onePixelInSecs < 50) {
+	            timecodeIntervalSecs = 15.0;
+	        }
         }
+        else
+        {
+        	mOffset = 0;
+        	int intervall = mSoundFile.getNumFrames() / 640;
+        	start = mOffset;
+        	
+	        // Draw grid
+	        double onePixelInSecs = pixelsToSeconds(1);
+	        boolean onlyEveryFiveSecs = (onePixelInSecs > 1.0 / 50.0);
+	        double fractionalSecs = mOffset * onePixelInSecs;
+	        int integerSecs = (int) fractionalSecs;
+	        int i = 0;
+	
+	        while (i < width) {
+	           i++;
+	            fractionalSecs += onePixelInSecs;
+	            int integerSecsNew = (int) fractionalSecs;
+	            if (integerSecsNew != integerSecs) {
+	                integerSecs = integerSecsNew;
+	                if (!onlyEveryFiveSecs || 0 == (integerSecs % 5)) {
+	                    canvas.drawLine(i, 0, i, measuredHeight, mGridPaint);
+	                }
+	            }
+	        }
 
-        // Draw waveform
-        for (i = 0; i < width; i++) {
-            Paint paint;
-            if (i + start >= mSelectionStart &&
-                i + start < mSelectionEnd) {
-                paint = mSelectedLinePaint;
-            } else {
-                drawWaveformLine(canvas, i, 0, measuredHeight,
-                                 mUnselectedBkgndLinePaint);
-                paint = mUnselectedLinePaint;
-            }
-            drawWaveformLine(
-                canvas, i,
-                ctr - mHeightsAtThisZoomLevel[start + i],
-                ctr + 1 + mHeightsAtThisZoomLevel[start + i],
-                paint);
-
-            if (i + start == mPlaybackPos) {
-                canvas.drawLine(i, 0, i, measuredHeight, mPlaybackLinePaint);
-            }
+	        // Draw waveform
+	        for (i = 0; i < width; i++) {
+	            Paint paint;
+	            if (i + start >= mSelectionStart &&
+	                i + start < mSelectionEnd) {
+	                paint = mSelectedLinePaint;
+	            } else {
+	                drawWaveformLine(canvas, i, 0, measuredHeight,
+	                                 mUnselectedBkgndLinePaint);
+	                paint = mUnselectedLinePaint;
+	            }
+	            drawWaveformLine(
+	                canvas, i,
+	                ctr - mHeightsAtThisZoomLevel[start + i*intervall],
+	                ctr + 1 + mHeightsAtThisZoomLevel[i*intervall],
+	                paint);
+	
+	            if (i + start == mPlaybackPos) {
+	                canvas.drawLine(i, 0, i, measuredHeight, mPlaybackLinePaint);
+	            }
+	        }
+	
+	        // If we can see the right edge of the waveform, draw the
+	        // non-waveform area to the right as unselected
+	        for (i = width; i < measuredWidth; i++) {
+	            drawWaveformLine(canvas, i, 0, measuredHeight,
+	                             mUnselectedBkgndLinePaint);            
+	        }
+	
+	        // Draw borders
+	        canvas.drawLine(
+	            mSelectionStart - mOffset + 0.5f, 30,
+	            mSelectionStart - mOffset + 0.5f, measuredHeight,
+	            mBorderLinePaint);
+	        canvas.drawLine(
+	            mSelectionEnd - mOffset + 0.5f, 0,
+	            mSelectionEnd - mOffset + 0.5f, measuredHeight - 30,
+	            mBorderLinePaint);
+	
+	        // Draw timecode
+	        double timecodeIntervalSecs = 1.0;
+	        if (timecodeIntervalSecs / onePixelInSecs < 50) {
+	            timecodeIntervalSecs = 5.0;
+	        }
+	        if (timecodeIntervalSecs / onePixelInSecs < 50) {
+	            timecodeIntervalSecs = 15.0;
+	        }
         }
-
-        // If we can see the right edge of the waveform, draw the
-        // non-waveform area to the right as unselected
-        for (i = width; i < measuredWidth; i++) {
-            drawWaveformLine(canvas, i, 0, measuredHeight,
-                             mUnselectedBkgndLinePaint);            
-        }
-
-        // Draw borders
-        canvas.drawLine(
-            mSelectionStart - mOffset + 0.5f, 30,
-            mSelectionStart - mOffset + 0.5f, measuredHeight,
-            mBorderLinePaint);
-        canvas.drawLine(
-            mSelectionEnd - mOffset + 0.5f, 0,
-            mSelectionEnd - mOffset + 0.5f, measuredHeight - 30,
-            mBorderLinePaint);
-
-        // Draw timecode
-        double timecodeIntervalSecs = 1.0;
-        if (timecodeIntervalSecs / onePixelInSecs < 50) {
-            timecodeIntervalSecs = 5.0;
-        }
-        if (timecodeIntervalSecs / onePixelInSecs < 50) {
-            timecodeIntervalSecs = 15.0;
-        }
-
 
         if (mListener != null) {
             mListener.waveformDraw();
