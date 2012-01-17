@@ -158,8 +158,11 @@ public class LayoutSpielplatzActivity extends Activity
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id)
 			{
 				Album album = allAlbums.get(position);
-				albumTitle.setText(album.getTitle() + " - " + album.getArtist());
-				songList.setAdapter(new SongListAdapter(LayoutSpielplatzActivity.this, album.getSongs()));
+				if (album != null)
+				{
+					albumTitle.setText(album.getTitle() + " - " + album.getArtist());
+					songList.setAdapter(new SongListAdapter(LayoutSpielplatzActivity.this, album.getSongs()));
+				}
 			}
 
 			@Override
@@ -259,10 +262,11 @@ public class LayoutSpielplatzActivity extends Activity
 			imageView.setBackgroundResource(LayoutSpielplatzActivity.this.mGalleryItemBackground);
 
 			Album album = this.allAlbums.get(i);
-			if (album.getAlbumArtUri() == null)
-				imageView.setImageResource(R.drawable.art_not_found);
-			else
-				imageView.setImageURI(Uri.parse(album.getAlbumArtUri()));
+			if (album != null)
+				if (album.getAlbumArtUri() == null)
+					imageView.setImageResource(R.drawable.art_not_found);
+				else
+					imageView.setImageURI(Uri.parse(album.getAlbumArtUri()));
 
 			return imageView;
 		}
