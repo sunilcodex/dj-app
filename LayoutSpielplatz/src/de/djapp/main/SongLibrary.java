@@ -35,6 +35,7 @@ public class SongLibrary
 	AudioColumns.ALBUM_ID, // 4
 	AudioColumns.DURATION, // 5
 	AudioColumns.ALBUM_KEY, // 6
+	AudioColumns.ARTIST_KEY, // 7
 
 	};
 
@@ -71,6 +72,7 @@ public class SongLibrary
 				long albumId = cursor.getLong(4);
 				long duration = cursor.getLong(5);
 				String albumKey = cursor.getString(6);
+				String artistKey = cursor.getString(7);
 
 				Cursor albumFetcher = contentResolver.query(ContentUris.withAppendedId(MediaStore.Audio.Albums.EXTERNAL_CONTENT_URI, albumId), new String[]
 				{
@@ -89,6 +91,7 @@ public class SongLibrary
 				song.setAlbumArtUri(albumArtUri);
 				song.setDuration(duration);
 				song.setAlbumKey(albumKey);
+				song.setArtistKey(artistKey);
 
 				this.allSongs.add(song);
 			}
@@ -124,6 +127,15 @@ public class SongLibrary
 		return songsPerAlbum;
 	}
 
+	public List<Song> getAllSongsByArtist(String artistKey)
+	{
+		List<Song> songsPerArtist = new ArrayList<Song>();
+		for (Song song : this.allSongs)
+			if (song.getArtistId().equals(artistKey))
+				songsPerArtist.add(song);
+		return songsPerArtist;
+	}
+
 	/**
 	 * Get a list of all songs
 	 * 
@@ -157,7 +169,7 @@ public class SongLibrary
 			if (lhs == null || rhs == null || lhs.getTitle() == null || rhs.getTitle() == null)
 				return -1;
 
-			return lhs.getTitle().compareTo(rhs.getTitle());
+			return lhs.getTitle().toLowerCase().compareTo(rhs.getTitle().toLowerCase());
 		}
 	}
 
@@ -169,7 +181,7 @@ public class SongLibrary
 			if (lhs == null || rhs == null || lhs.getArtist() == null || rhs.getArtist() == null)
 				return -1;
 
-			return lhs.getArtist().compareTo(rhs.getArtist());
+			return lhs.getArtist().toLowerCase().compareTo(rhs.getArtist().toLowerCase());
 		}
 	}
 
@@ -181,7 +193,7 @@ public class SongLibrary
 			if (lhs == null || rhs == null || lhs.getAlbum() == null || rhs.getAlbum() == null)
 				return -1;
 
-			return lhs.getAlbum().compareTo(rhs.getAlbum());
+			return lhs.getAlbum().toLowerCase().compareTo(rhs.getAlbum().toLowerCase());
 		}
 	}
 

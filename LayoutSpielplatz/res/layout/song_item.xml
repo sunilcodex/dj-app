@@ -46,6 +46,23 @@
 		</TextView>
 	</LinearLayout>
 	
+	<Button
+	    android:id="@+id/song_button_deckA"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text="A"
+		android:layout_gravity="center_vertical"
+	   />
+
+	<Button
+	    android:id="@+id/song_button_deckB"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text="B"
+		android:layout_gravity="center_vertical"
+	   />
+	
+		
 	<TextView
 	    android:id="@+id/song_duration"
 	    android:layout_width="wrap_content"

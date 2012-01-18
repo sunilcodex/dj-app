@@ -16,6 +16,7 @@ public class Song
 	private String albumArtUri = null;
 	private long duration;
 	private String albumId;
+	private String artistId;
 
 	// private static final String TAG = "DJApp.Song";
 	// private String genre = null;
@@ -175,5 +176,15 @@ public class Song
 	public void setAlbumKey(String albumId)
 	{
 		this.albumId = albumId;
+	}
+
+	public String getArtistId()
+	{
+		return artistId;
+	}
+
+	public void setArtistKey(String artistId)
+	{
+		this.artistId = artistId;
 	}
 }

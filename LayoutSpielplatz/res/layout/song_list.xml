@@ -23,7 +23,6 @@
 		    android:prompt="@string/sort_by_prompt"
 		    />
 	</LinearLayout>
-	-->
 	<ScrollView
 		    android:layout_width="match_parent"
 		    android:layout_height="match_parent"
@@ -35,4 +34,10 @@
 		    android:orientation="vertical"
 		    />
 	</ScrollView>
+	-->
+	<ListView 
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:id="@+id/song_list"
+	/>
 </LinearLayout>
