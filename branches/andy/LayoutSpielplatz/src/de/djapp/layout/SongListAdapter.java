@@ -3,12 +3,12 @@ package de.djapp.layout;
 import java.util.List;
 
 import android.app.Activity;
-import android.content.Context;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import de.djapp.andy.R;
@@ -17,31 +17,37 @@ import de.djapp.main.Song;
 
 public class SongListAdapter extends ArrayAdapter<Song>
 {
-	private Context context;
 	private List<Song> allSongs;
+	private LayoutInflater layoutInflater;
 
-	public SongListAdapter(Context context, List<Song> objects)
+	public SongListAdapter(Activity activity, List<Song> objects)
 	{
-		super(context, R.layout.song_item, objects);
-		this.context = context;
+		super(activity, R.layout.song_item, objects);
 		this.allSongs = objects;
+		this.layoutInflater = activity.getLayoutInflater();
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent)
 	{
-		View row = convertView;
+		ViewHolder holder;
 
-		if (row == null)
+		if (convertView == null)
 		{
-			LayoutInflater inflater = ((Activity) this.context).getLayoutInflater();
-			row = inflater.inflate(R.layout.song_item, parent, false);
-		}
+			convertView = this.layoutInflater.inflate(R.layout.song_item, null);
 
-		ImageView albumArt = (ImageView) row.findViewById(R.id.album_art);
-		TextView songTitle = (TextView) row.findViewById(R.id.song_title);
-		TextView songArtist = (TextView) row.findViewById(R.id.song_artist);
-		TextView songDuration = (TextView) row.findViewById(R.id.song_duration);
+			holder = new ViewHolder();
+			holder.albumArt = (ImageView) convertView.findViewById(R.id.album_art);
+			holder.artist = (TextView) convertView.findViewById(R.id.song_artist);
+			holder.title = (TextView) convertView.findViewById(R.id.song_title);
+			holder.duration = (TextView) convertView.findViewById(R.id.song_duration);
+
+			convertView.setTag(holder);
+		}
+		else
+		{
+			holder = (ViewHolder) convertView.getTag();
+		}
 
 		Song song = this.allSongs.get(position);
 
@@ -50,18 +56,27 @@ public class SongListAdapter extends ArrayAdapter<Song>
 		if (uriString != null)
 		{
 			Uri albumArtUri = Uri.parse(uriString);
-			albumArt.setImageURI(albumArtUri);
+			holder.albumArt.setImageURI(albumArtUri);
 		}
 		else
 		{
-			albumArt.setImageResource(R.drawable.art_not_found);
+			holder.albumArt.setImageResource(R.drawable.art_not_found);
 		}
+		holder.title.setText(song.getTitle());
+		holder.artist.setText(song.getArtist());
+		holder.duration.setText(FormatHelper.formatDuration(song.getDuration()));
 
-		songTitle.setText(song.getTitle());
-		songArtist.setText(song.getArtist());
-		songDuration.setText(FormatHelper.formatDuration(song.getDuration()));
+		return convertView;
+	}
 
-		return row;
+	static class ViewHolder
+	{
+		ImageView albumArt;
+		TextView title;
+		TextView artist;
+		TextView duration;
+		Button buttonDeckA;
+		Button buttonDeckB;
 	}
 
 }

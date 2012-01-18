@@ -12,18 +12,15 @@
         android:baselineAligned="false"
         >
 
-        <LinearLayout 
+        <ListView 
             	android:id="@+id/leftNavigation"
-                android:layout_width="120dp"
+                android:layout_width="130dp"
 	            android:layout_height="match_parent"
-            	android:orientation="vertical"
+	            android:background="@drawable/left_navigation"
+	            android:listSelector="@drawable/left_navigation_selected"
+	            
             >
-	        <TextView
-	            android:layout_width="match_parent"
-	            android:layout_height="match_parent"
-	            android:background="#330000" 
-	            />
-        </LinearLayout>
+        </ListView>
 
         <LinearLayout
             android:id="@+id/centerNavigation"
@@ -35,7 +32,7 @@
 
         <LinearLayout 
 	            android:id="@+id/rightNavigation"
-                android:layout_width="120dp"
+                android:layout_width="125dp"
 	            android:layout_height="match_parent"
             	android:orientation="vertical"
             >
@@ -50,7 +47,6 @@
 	            android:layout_height="wrap_content"
 	            android:text="Artist"
 	            android:onClick="showArtist"
-	            android:enabled="false"
 	            />
 	        <Button
 	            android:id="@+id/btn_show_album"
@@ -64,6 +60,7 @@
 	            android:layout_height="wrap_content"
 	            android:text="Genre"
 	            android:onClick="showGenre"
+	            android:enabled="false"
 	            />
 	        <Button
 	            android:layout_width="match_parent"
