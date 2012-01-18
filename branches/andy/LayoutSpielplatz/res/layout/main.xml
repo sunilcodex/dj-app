@@ -17,8 +17,8 @@
                 android:layout_width="130dp"
 	            android:layout_height="match_parent"
 	            android:background="@drawable/left_navigation"
-	            android:listSelector="@drawable/left_navigation_selected"
-	            
+	            android:paddingRight="0dp"
+	            android:listSelector="@drawable/left_navigation_selector"
             >
         </ListView>
 
@@ -26,7 +26,8 @@
             android:id="@+id/centerNavigation"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_weight="1"
+            android:layout_marginLeft="4dp">
             >
         </LinearLayout>
 

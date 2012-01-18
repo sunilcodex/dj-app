@@ -52,8 +52,9 @@ public class LayoutSpielplatzActivity extends Activity
 
 		ListView leftNavigation = (ListView) findViewById(R.id.leftNavigation);
 		leftNavigation.setAdapter(new LeftMenuAdapter(this));
-		// InputStream in = getResources().openRawResource(R.drawable.left_navigation_selected);
-		// leftNavigation.setSelector(NinePatchDrawable.createFromStream(in, null));
+		// InputStream in = getResources().openRawResource(R.drawable.test);
+		// Drawable d = NinePatchDrawable.createFromStream(in, null);
+		// leftNavigation.setSelector(d);
 		// this.showAlbum(null);
 		// this.showGenre(null);
 	}
