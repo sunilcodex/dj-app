@@ -73,7 +73,8 @@
             </LinearLayout>
 <com.example.DJApp.WaveformView android:id="@+id/waveform"
        android:layout_width="fill_parent"
-       android:layout_height="105dp" />
+       android:layout_height="105dp"
+      android:background="@drawable/lower_bg" />
 
 </LinearLayout>
 
@@ -132,7 +133,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:secondaryProgress="0"
-        android:progressDrawable="@drawable/clean_seekbar"
+        android:progressDrawable="@drawable/lower_bg"
         android:thumb="@drawable/slider"
 />
     

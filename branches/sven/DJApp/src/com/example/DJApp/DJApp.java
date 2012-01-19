@@ -115,6 +115,7 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
 
 		mWaveformView = (WaveformView)findViewById(R.id.waveform);
         mWaveformView.setListener(this);
+        mWaveformView.setFixedWindow(true);
         
         audioPlayer1.setVolume(0.5f);
 		audioPlayer2.setVolume(0.5f);
@@ -128,6 +129,7 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
 						play1Button.setSelected(false);
 						//play1Button.setImageDrawable(getResources().getDrawable(R.drawable.playbutton));
 					} else {
+						mIsPlaying = true;
 						audioPlayer1.start();
 						play1Button.setSelected(true);
 						//play1Button.setImageDrawable(getResources().getDrawable(R.drawable.pausebutton));
@@ -354,7 +356,7 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
 										currentSeconds) + "/" + duration);
 
 //				progressBar.setProgress((int) (audioPlayer1.getCurrentPositionInPercent() * 100));
-
+				updateDisplay();
 				handler.postDelayed(testTask, 1000);
 			}
 		};
@@ -600,13 +602,13 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
 
     private synchronized void updateDisplay() {
         if (mIsPlaying) {
-            int now = mPlayer.getCurrentPosition() + mPlayStartOffset;
+            int now = audioPlayer1.getCurrentPosition();//mPlayer.getCurrentPosition() + mPlayStartOffset;
             int frames = mWaveformView.millisecsToPixels(now);
             mWaveformView.setPlayback(frames);
             setOffsetGoalNoUpdate(frames - mWidth / 2);
-            if (now >= mPlayEndMsec) {
-                handlePause();
-            }
+//            if (now >= mPlayEndMsec) {
+//                handlePause();
+//            }
         }
 
         if (!mTouchDragging) {
