@@ -77,12 +77,15 @@ public class WaveformView extends View {
     private WaveformListener mListener;
     private GestureDetector mGestureDetector;
     private boolean mInitialized;
+	private boolean mFixedWIndowSize;
 
     public WaveformView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         // We don't want keys, the markers get these
         setFocusable(false);
+        
+        mFixedWIndowSize=false;
 
         mGridPaint = new Paint();
         mGridPaint.setAntiAlias(false);
@@ -163,6 +166,11 @@ public class WaveformView extends View {
         return true;
     }
 
+    public void setFixedWindow(boolean fixed)
+    {
+    	mFixedWIndowSize = fixed;
+    }
+    
     public void setSoundFile(CheapSoundFile soundFile) {
         mSoundFile = soundFile;
         mSampleRate = mSoundFile.getSampleRate();
@@ -302,8 +310,7 @@ public class WaveformView extends View {
         if (mSoundFile == null)
             return;
 
-        boolean zoomedOut = true;
-        if(zoomedOut)
+        if(mFixedWIndowSize)
         	mZoomLevel = 1;
         
         if (mHeightsAtThisZoomLevel == null)
@@ -319,8 +326,7 @@ public class WaveformView extends View {
         if (width > measuredWidth)
             width = measuredWidth;
 
-        
-        if(!zoomedOut)
+        if(!mFixedWIndowSize)
         {
 	        // Draw grid
 	        double onePixelInSecs = pixelsToSeconds(1);
@@ -392,7 +398,7 @@ public class WaveformView extends View {
         else
         {
         	mOffset = 0;
-        	int intervall = mSoundFile.getNumFrames() / 640;
+        	int intervall = mSoundFile.getNumFrames() / width;
         	start = mOffset;
         	
 	        // Draw grid
@@ -403,8 +409,8 @@ public class WaveformView extends View {
 	        int i = 0;
 	
 	        while (i < width) {
-	           i++;
-	            fractionalSecs += onePixelInSecs;
+	        	i++;
+	            fractionalSecs += onePixelInSecs*intervall;
 	            int integerSecsNew = (int) fractionalSecs;
 	            if (integerSecsNew != integerSecs) {
 	                integerSecs = integerSecsNew;
@@ -415,33 +421,54 @@ public class WaveformView extends View {
 	        }
 
 	        // Draw waveform
+	        int gotPlaybackTime = 0;
 	        for (i = 0; i < width; i++) {
 	            Paint paint;
 	            if (i + start >= mSelectionStart &&
 	                i + start < mSelectionEnd) {
 	                paint = mSelectedLinePaint;
 	            } else {
-	                drawWaveformLine(canvas, i, 0, measuredHeight,
-	                                 mUnselectedBkgndLinePaint);
+//	                drawWaveformLine(canvas, i, 0, measuredHeight,
+//	                                 mUnselectedBkgndLinePaint);
 	                paint = mUnselectedLinePaint;
 	            }
-	            drawWaveformLine(
-	                canvas, i,
-	                ctr - mHeightsAtThisZoomLevel[start + i*intervall],
-	                ctr + 1 + mHeightsAtThisZoomLevel[i*intervall],
-	                paint);
-	
-	            if (i + start == mPlaybackPos) {
-	                canvas.drawLine(i, 0, i, measuredHeight, mPlaybackLinePaint);
+	            
+	            int meanHeight = 0;
+	            int count = 0;
+	            for(int j=-intervall/2; j<intervall/2; ++j)
+	            {
+	            	if(i*intervall+j>=0 && i*intervall+j<mHeightsAtThisZoomLevel.length)
+	            	{
+	            		meanHeight += mHeightsAtThisZoomLevel[i*intervall+j];
+	            		count++;
+	            		if (i*intervall+j >= mPlaybackPos && gotPlaybackTime==0) {
+	            			gotPlaybackTime = 1;
+	    	            }
+
+	            	}
 	            }
+	            meanHeight /= count;
+	            
+	            if (gotPlaybackTime==1) {
+	                canvas.drawLine(i, 0, i, measuredHeight, mPlaybackLinePaint);
+	                gotPlaybackTime = 2;
+	            }
+	            else
+	            {
+		            drawWaveformLine(
+		                canvas, i,
+		                ctr - meanHeight,
+		                ctr + 1 + meanHeight,
+		                paint);
+	            }	
 	        }
 	
 	        // If we can see the right edge of the waveform, draw the
 	        // non-waveform area to the right as unselected
-	        for (i = width; i < measuredWidth; i++) {
-	            drawWaveformLine(canvas, i, 0, measuredHeight,
-	                             mUnselectedBkgndLinePaint);            
-	        }
+//	        for (i = width; i < measuredWidth; i++) {
+//	            drawWaveformLine(canvas, i, 0, measuredHeight,
+//	                             mUnselectedBkgndLinePaint);            
+//	        }
 	
 	        // Draw borders
 	        canvas.drawLine(
