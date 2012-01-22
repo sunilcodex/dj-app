@@ -75,6 +75,10 @@
        android:layout_width="fill_parent"
        android:layout_height="105dp"
       android:background="@drawable/lower_bg" />
+<com.example.DJApp.WaveformView android:id="@+id/waveform1"
+       android:layout_width="fill_parent"
+       android:layout_height="105dp"
+      android:background="@drawable/lower_bg" />
 
 </LinearLayout>
 
