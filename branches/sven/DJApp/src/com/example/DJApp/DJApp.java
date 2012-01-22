@@ -74,6 +74,7 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
     private int mNewFileKind;
     private boolean mWasGetContentIntent;
     private WaveformView mWaveformView;
+    private WaveformView mWaveformView1;
     private boolean mKeyDown;
     private String mCaption = "";
     private int mWidth;
@@ -116,6 +117,10 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
 		mWaveformView = (WaveformView)findViewById(R.id.waveform);
         mWaveformView.setListener(this);
         mWaveformView.setFixedWindow(true);
+        
+		mWaveformView1 = (WaveformView)findViewById(R.id.waveform1);
+        mWaveformView1.setListener(this);
+        mWaveformView1.setFixedWindow(false);
         
         audioPlayer1.setVolume(0.5f);
 		audioPlayer2.setVolume(0.5f);
@@ -370,6 +375,8 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
     private void finishOpeningSoundFile() {
         mWaveformView.setSoundFile(mSoundFile);
         mWaveformView.recomputeHeights(mDensity);
+        mWaveformView1.setSoundFile(mSoundFile);
+        mWaveformView1.recomputeHeights(mDensity);
 
         mMaxPos = mWaveformView.maxPos();
         mLastDisplayedStartPos = -1;
@@ -605,6 +612,8 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
             int now = audioPlayer1.getCurrentPosition();//mPlayer.getCurrentPosition() + mPlayStartOffset;
             int frames = mWaveformView.millisecsToPixels(now);
             mWaveformView.setPlayback(frames);
+            int frames1 = mWaveformView1.millisecsToPixels(now);
+            mWaveformView1.setPlayback(frames1);
             setOffsetGoalNoUpdate(frames - mWidth / 2);
 //            if (now >= mPlayEndMsec) {
 //                handlePause();
@@ -657,6 +666,9 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
 
         mWaveformView.setParameters(mStartPos, mEndPos, mOffset);
         mWaveformView.invalidate();
+
+        mWaveformView1.setParameters(mStartPos, mEndPos, mOffset);
+        mWaveformView1.invalidate();
     }
 
 }

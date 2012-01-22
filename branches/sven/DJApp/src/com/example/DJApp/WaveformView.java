@@ -17,7 +17,6 @@ package com.example.DJApp;
  */
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.DashPathEffect;
@@ -26,8 +25,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
-
-import java.util.Map;
 
 /**
  * WaveformView is an Android view that displays a visual representation
@@ -73,11 +70,11 @@ public class WaveformView extends View {
     private int mSelectionStart;
     private int mSelectionEnd;
     private int mPlaybackPos;
-    private float mDensity;
     private WaveformListener mListener;
     private GestureDetector mGestureDetector;
     private boolean mInitialized;
 	private boolean mFixedWIndowSize;
+	private float mDensity;
 
     public WaveformView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -148,22 +145,23 @@ public class WaveformView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (mGestureDetector.onTouchEvent(event)) {
-            return true;
-        }
-
-        switch(event.getAction()) {
-        case MotionEvent.ACTION_DOWN:
-            mListener.waveformTouchStart(event.getX());
-            break;
-        case MotionEvent.ACTION_MOVE:
-            mListener.waveformTouchMove(event.getX());
-            break;
-        case MotionEvent.ACTION_UP:
-            mListener.waveformTouchEnd();
-            break;
-        }
-        return true;
+    	return false;
+//        if (mGestureDetector.onTouchEvent(event)) {
+//            return true;
+//        }
+//
+//        switch(event.getAction()) {
+//        case MotionEvent.ACTION_DOWN:
+//            mListener.waveformTouchStart(event.getX());
+//            break;
+//        case MotionEvent.ACTION_MOVE:
+//            mListener.waveformTouchMove(event.getX());
+//            break;
+//        case MotionEvent.ACTION_UP:
+//            mListener.waveformTouchEnd();
+//            break;
+//        }
+//        return true;
     }
 
     public void setFixedWindow(boolean fixed)
@@ -328,6 +326,8 @@ public class WaveformView extends View {
 
         if(!mFixedWIndowSize)
         {
+        	mOffset = mPlaybackPos;
+        	
 	        // Draw grid
 	        double onePixelInSecs = pixelsToSeconds(1);
 	        boolean onlyEveryFiveSecs = (onePixelInSecs > 1.0 / 50.0);
@@ -342,30 +342,30 @@ public class WaveformView extends View {
 	            if (integerSecsNew != integerSecs) {
 	                integerSecs = integerSecsNew;
 	                if (!onlyEveryFiveSecs || 0 == (integerSecs % 5)) {
-	                    canvas.drawLine(i, 0, i, measuredHeight, mGridPaint);
+	                    canvas.drawLine(i+mOffset, 0, i+mOffset, measuredHeight, mGridPaint);
 	                }
 	            }
 	        }
 
 	        // Draw waveform
-	        for (i = 0; i < width; i++) {
+	        for (i = -width/2; i <= width/2; i++) {
 	            Paint paint;
 	            if (i + start >= mSelectionStart &&
 	                i + start < mSelectionEnd) {
 	                paint = mSelectedLinePaint;
 	            } else {
-	                drawWaveformLine(canvas, i, 0, measuredHeight,
-	                                 mUnselectedBkgndLinePaint);
+	                //drawWaveformLine(canvas, i, 0, measuredHeight,  mUnselectedBkgndLinePaint);
 	                paint = mUnselectedLinePaint;
 	            }
-	            drawWaveformLine(
-	                canvas, i,
-	                ctr - mHeightsAtThisZoomLevel[start + i],
-	                ctr + 1 + mHeightsAtThisZoomLevel[start + i],
-	                paint);
+	            if(i+mOffset>=0 && i+mOffset<mHeightsAtThisZoomLevel.length)
+		            drawWaveformLine(
+		                canvas, i+width/2,
+		                ctr - mHeightsAtThisZoomLevel[i+mOffset],
+		                ctr + 1 + mHeightsAtThisZoomLevel[i+mOffset],
+		                paint);
 	
-	            if (i + start == mPlaybackPos) {
-	                canvas.drawLine(i, 0, i, measuredHeight, mPlaybackLinePaint);
+	            if (i == 0) {
+	                canvas.drawLine(width/2, 0, width/2, measuredHeight, mPlaybackLinePaint);
 	            }
 	        }
 	
