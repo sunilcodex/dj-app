@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_marginTop="5dp"
+    >
+	
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:longClickable="true"
+        >
+	<ImageView 
+	    android:id="@+id/album_art"
+	    android:layout_width="60dp"
+	    android:layout_height="60dp"
+	    android:layout_marginRight="5dp"
+		android:contentDescription="@string/img_not_found">
+	</ImageView>
+    
+	<LinearLayout 
+		android:layout_width="0dp"
+		android:layout_weight="1"
+		android:layout_height="match_parent"
+		android:orientation="vertical"
+		>
+		<TextView 
+		    android:id="@+id/song_title"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:textSize="20sp"
+		    android:textColor="#000000"
+		    android:paddingTop="4dp"
+		    >
+		</TextView>
+	    
+	    <TextView 
+		    android:id="@+id/song_artist"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:textColor="#404040" 
+		    android:textSize="16sp"
+		    >
+		</TextView>
+	</LinearLayout>
+	
+	<Button
+	    android:id="@+id/song_button_deckA"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text="A"
+		android:layout_gravity="center_vertical"
+	   />
+
+	<Button
+	    android:id="@+id/song_button_deckB"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:text="B"
+		android:layout_gravity="center_vertical"
+	   />
+	
+		
+	<TextView
+	    android:id="@+id/song_duration"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_gravity="center_vertical"
+	    android:layout_marginLeft="10dp"
+	    android:paddingRight="5dp"
+		android:layout_marginRight="15dp"
+	    >
+	</TextView>
+</LinearLayout>
+</LinearLayout>
