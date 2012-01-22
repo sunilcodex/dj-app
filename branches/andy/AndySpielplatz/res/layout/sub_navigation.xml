@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ListView  
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/subNavigation"
+	android:layout_width="130dp"
+	android:layout_height="match_parent"
+	android:background="@drawable/left_navigation"
+	android:paddingRight="0dp"
+	android:listSelector="@drawable/left_navigation_selected"
+	android:dividerHeight="1dp"
+	android:divider="#C9C9C9">
+</ListView>

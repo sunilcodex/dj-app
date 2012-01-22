@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    >
+    
+   	<ListView android:id="@+id/browse_artist_artistlist"
+	    android:layout_width="250dp"
+	    android:layout_height="match_parent"
+	    android:listSelector="@drawable/group_header_border"
+		    />
+    <LinearLayout 
+	    android:layout_width="0dp"
+	    android:layout_height="match_parent"
+	    android:layout_weight="1"
+	    android:orientation="vertical">
+    
+    <TextView android:id="@+id/browse_artist_name"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:textSize="20sp"
+	    android:textColor="#334A7A"
+	    android:background="@drawable/group_header_border"
+	    android:padding="4sp"
+		/>
+	<ListView android:id="@+id/browse_artist_songlist"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    />
+    </LinearLayout>
+	
+</LinearLayout>

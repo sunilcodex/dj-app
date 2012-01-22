@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal" >
+	
+    <fragment
+        android:id="@+id/main_navigation_fragment"
+		android:layout_width="130dp"
+		android:layout_height="match_parent"
+        class="de.andy.spielplatz.layout.fragments.MainNavigation"
+        />
+     
+     <fragment
+        android:id="@+id/sub_navigation_fragment"
+		android:layout_width="0dp"
+		android:layout_height="match_parent"
+        class="de.andy.spielplatz.layout.fragments.SubNavigation"
+        />
+     
+     <FrameLayout android:id="@+id/content"
+         android:layout_width="0dp"
+         android:layout_height="match_parent"
+         android:layout_weight="1"
+         android:background="#FFFFFF"
+         android:paddingLeft="4dp"
+         />
+     
+    
+</LinearLayout>
