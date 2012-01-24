@@ -14,7 +14,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import de.andy.spielplatz.R;
 
-public class RightMenuAdapter extends ArrayAdapter<String>
+public class BrowseMenuAdapter extends ArrayAdapter<String>
 {
 	public static final int TITLE = 0;
 	public static final int ARTIST = 1;
@@ -23,7 +23,7 @@ public class RightMenuAdapter extends ArrayAdapter<String>
 	public static final int FAVORITES = 4;
 	public static final int TAGS = 5;
 
-	public RightMenuAdapter(Activity activity)
+	public BrowseMenuAdapter(Activity activity)
 	{
 		super(activity, R.layout.menu_item, Arrays.asList(new String[]
 		{

@@ -69,17 +69,11 @@ public class SongListAdapter extends ArrayAdapter<Song>
 		holder.artist.setText(song.getArtist());
 		holder.duration.setText(FormatHelper.formatDuration(song.getDuration()));
 
-		holder.albumArt.setOnLongClickListener(new OnLongClickListener()
-		{
+		OnDrag onDragListener = new OnDrag(position, song, holder);
 
-			@Override
-			public boolean onLongClick(View v)
-			{
-				ClipData data = ClipData.newPlainText("", "" + position);
-				v.startDrag(data, new DragShadowBuilder(v), song, 0);
-				return true;
-			}
-		});
+		holder.title.setOnLongClickListener(onDragListener);
+		holder.artist.setOnLongClickListener(onDragListener);
+		holder.albumArt.setOnLongClickListener(onDragListener);
 
 		return convertView;
 	}
@@ -92,6 +86,28 @@ public class SongListAdapter extends ArrayAdapter<Song>
 		TextView duration;
 		Button buttonDeckA;
 		Button buttonDeckB;
+	}
+
+	private class OnDrag implements OnLongClickListener
+	{
+		private int position;
+		private Song song;
+		private ViewHolder holder;
+
+		public OnDrag(int position, Song song, ViewHolder holder)
+		{
+			this.position = position;
+			this.song = song;
+			this.holder = holder;
+		}
+
+		@Override
+		public boolean onLongClick(View v)
+		{
+			ClipData data = ClipData.newPlainText("", "" + this.position);
+			v.startDrag(data, new DragShadowBuilder(holder.albumArt), this.song, 0);
+			return true;
+		}
 	}
 
 }

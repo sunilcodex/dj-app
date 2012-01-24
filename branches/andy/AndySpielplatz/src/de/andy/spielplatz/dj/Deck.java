@@ -23,12 +23,19 @@ public class Deck
 	private MediaPlayer mediaPlayer;
 	private Playlist playlist = null;
 
+	private boolean isReady = false;
+
 	/**
 	 * Create a new deck
 	 */
 	public Deck()
 	{
 		this.mediaPlayer = new MediaPlayer();
+	}
+
+	public boolean isReady()
+	{
+		return this.isReady;
 	}
 
 	/**
@@ -96,7 +103,7 @@ public class Deck
 				this.mediaPlayer.reset();
 				this.mediaPlayer.setDataSource(song.getFile());
 				this.mediaPlayer.prepare();
-
+				this.isReady = true;
 			}
 			catch (IOException e)
 			{

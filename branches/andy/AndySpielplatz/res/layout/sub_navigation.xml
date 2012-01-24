@@ -8,5 +8,8 @@
 	android:paddingRight="0dp"
 	android:listSelector="@drawable/left_navigation_selected"
 	android:dividerHeight="1dp"
-	android:divider="#C9C9C9">
+	android:divider="#C9C9C9"
+	android:soundEffectsEnabled="false"
+		    android:hapticFeedbackEnabled="true"
+	>
 </ListView>

@@ -3,6 +3,7 @@ package de.andy.spielplatz.layout.fragments;
 import android.app.FragmentTransaction;
 import android.app.ListFragment;
 import android.os.Bundle;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import de.andy.spielplatz.R;
-import de.andy.spielplatz.adapter.RightMenuAdapter;
+import de.andy.spielplatz.adapter.BrowseMenuAdapter;
 import de.andy.spielplatz.layout.fragments.browse.BrowseByAlbum;
 import de.andy.spielplatz.layout.fragments.browse.BrowseByArtist;
 import de.andy.spielplatz.layout.fragments.browse.BrowseByTitle;
@@ -31,13 +32,20 @@ public class SubNavigation extends ListFragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
-		this.setListAdapter(new RightMenuAdapter(this.getActivity()));
+		this.setListAdapter(new BrowseMenuAdapter(this.getActivity()));
 		this.getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		this.getListView().setItemChecked(0, true);
 
 		this.fragmentBrowseByTitle = new BrowseByTitle();
 		this.fragmentBrowseByArtist = new BrowseByArtist();
 		this.fragmentBrowseByAlbum = new BrowseByAlbum();
+
+		Object content = this.getFragmentManager().findFragmentById(R.id.content);
+		FragmentTransaction transaction = this.getFragmentManager().beginTransaction();
+		if (content == null || !(content instanceof BrowseByTitle))
+			transaction.replace(R.id.content, this.fragmentBrowseByTitle);
+		transaction.setTransition(FragmentTransaction.TRANSIT_ENTER_MASK);
+		transaction.commit();
 	}
 
 	@Override
@@ -56,18 +64,20 @@ public class SubNavigation extends ListFragment
 		Object content = this.getFragmentManager().findFragmentById(R.id.content);
 		FragmentTransaction transaction = this.getFragmentManager().beginTransaction();
 
+		v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
+
 		switch (position)
 		{
-			case RightMenuAdapter.ARTIST:
+			case BrowseMenuAdapter.ARTIST:
 				if (content == null || !(content instanceof BrowseByArtist))
 					transaction.replace(R.id.content, this.fragmentBrowseByArtist);
 				break;
-			case RightMenuAdapter.ALBUM:
+			case BrowseMenuAdapter.ALBUM:
 				if (content == null || !(content instanceof BrowseByAlbum))
 					transaction.replace(R.id.content, this.fragmentBrowseByAlbum);
 				break;
 			default:
-			case RightMenuAdapter.TITLE:
+			case BrowseMenuAdapter.TITLE:
 				if (content == null || !(content instanceof BrowseByTitle))
 					transaction.replace(R.id.content, this.fragmentBrowseByTitle);
 				break;

@@ -27,8 +27,6 @@ public class BrowseByAlbum extends Fragment
 	{
 		super.onCreate(savedInstanceState);
 
-		if (this.allAlbums == null)
-			this.allAlbums = Library.getInstance().getAlbumLibrary().getAllAlbums();
 	}
 
 	@Override
@@ -41,6 +39,10 @@ public class BrowseByAlbum extends Fragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
+
+		if (this.allAlbums == null)
+			this.allAlbums = Library.getInstance().getAlbumLibrary().getAllAlbums();
+
 		Gallery gallery = (Gallery) this.getView().findViewById(R.id.album_gallery);
 
 		gallery.setAdapter(new GalleryAdapter(BrowseByAlbum.this.allAlbums, this.getActivity()));

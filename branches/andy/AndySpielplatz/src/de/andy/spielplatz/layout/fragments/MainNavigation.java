@@ -2,6 +2,7 @@ package de.andy.spielplatz.layout.fragments;
 
 import android.app.ListFragment;
 import android.os.Bundle;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,8 +27,8 @@ public class MainNavigation extends ListFragment
 		this.subNavigation = (SubNavigation) getFragmentManager().findFragmentById(R.id.sub_navigation_fragment);
 		this.setListAdapter(new MainMenuAdapter(this.getActivity()));
 		this.getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-		this.getListView().setItemChecked(0, true);
 		this.subNavigation.setVisibility(View.VISIBLE);
+		this.getListView().setItemChecked(0, true);
 	}
 
 	@Override
@@ -42,6 +43,7 @@ public class MainNavigation extends ListFragment
 	{
 		super.onListItemClick(l, v, position, id);
 		getListView().setItemChecked(position, true);
+		v.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
 
 		switch (position)
 		{
