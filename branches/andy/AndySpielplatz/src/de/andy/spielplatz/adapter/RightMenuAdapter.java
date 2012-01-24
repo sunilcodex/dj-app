@@ -16,6 +16,13 @@ import de.andy.spielplatz.R;
 
 public class RightMenuAdapter extends ArrayAdapter<String>
 {
+	public static final int TITLE = 0;
+	public static final int ARTIST = 1;
+	public static final int ALBUM = 2;
+	public static final int GENRE = 3;
+	public static final int FAVORITES = 4;
+	public static final int TAGS = 5;
+
 	public RightMenuAdapter(Activity activity)
 	{
 		super(activity, R.layout.menu_item, Arrays.asList(new String[]

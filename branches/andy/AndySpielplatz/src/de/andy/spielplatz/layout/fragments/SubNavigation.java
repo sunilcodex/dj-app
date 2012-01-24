@@ -17,6 +17,10 @@ import de.andy.spielplatz.layout.fragments.browse.BrowseByTitle;
 
 public class SubNavigation extends ListFragment
 {
+	private BrowseByTitle fragmentBrowseByTitle;
+	private BrowseByArtist fragmentBrowseByArtist;
+	private BrowseByAlbum fragmentBrowseByAlbum;
+
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
@@ -30,6 +34,10 @@ public class SubNavigation extends ListFragment
 		this.setListAdapter(new RightMenuAdapter(this.getActivity()));
 		this.getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 		this.getListView().setItemChecked(0, true);
+
+		this.fragmentBrowseByTitle = new BrowseByTitle();
+		this.fragmentBrowseByArtist = new BrowseByArtist();
+		this.fragmentBrowseByAlbum = new BrowseByAlbum();
 	}
 
 	@Override
@@ -50,18 +58,18 @@ public class SubNavigation extends ListFragment
 
 		switch (position)
 		{
-			case 1:
+			case RightMenuAdapter.ARTIST:
 				if (content == null || !(content instanceof BrowseByArtist))
-					transaction.replace(R.id.content, new BrowseByArtist());
+					transaction.replace(R.id.content, this.fragmentBrowseByArtist);
 				break;
-			case 2:
+			case RightMenuAdapter.ALBUM:
 				if (content == null || !(content instanceof BrowseByAlbum))
-					transaction.replace(R.id.content, new BrowseByAlbum());
+					transaction.replace(R.id.content, this.fragmentBrowseByAlbum);
 				break;
 			default:
-			case 0:
+			case RightMenuAdapter.TITLE:
 				if (content == null || !(content instanceof BrowseByTitle))
-					transaction.replace(R.id.content, new BrowseByTitle());
+					transaction.replace(R.id.content, this.fragmentBrowseByTitle);
 				break;
 		}
 

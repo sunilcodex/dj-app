@@ -3,9 +3,12 @@ package de.andy.spielplatz.adapter;
 import java.util.List;
 
 import android.app.Activity;
+import android.content.ClipData;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.DragShadowBuilder;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -28,9 +31,9 @@ public class SongListAdapter extends ArrayAdapter<Song>
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent)
+	public View getView(final int position, View convertView, ViewGroup parent)
 	{
-		ViewHolder holder;
+		final ViewHolder holder;
 
 		if (convertView == null)
 		{
@@ -49,7 +52,7 @@ public class SongListAdapter extends ArrayAdapter<Song>
 			holder = (ViewHolder) convertView.getTag();
 		}
 
-		Song song = this.allSongs.get(position);
+		final Song song = this.allSongs.get(position);
 
 		String uriString = song.getAlbumArtUri();
 
@@ -65,6 +68,18 @@ public class SongListAdapter extends ArrayAdapter<Song>
 		holder.title.setText(song.getTitle());
 		holder.artist.setText(song.getArtist());
 		holder.duration.setText(FormatHelper.formatDuration(song.getDuration()));
+
+		holder.albumArt.setOnLongClickListener(new OnLongClickListener()
+		{
+
+			@Override
+			public boolean onLongClick(View v)
+			{
+				ClipData data = ClipData.newPlainText("", "" + position);
+				v.startDrag(data, new DragShadowBuilder(v), song, 0);
+				return true;
+			}
+		});
 
 		return convertView;
 	}

@@ -1,7 +1,9 @@
-package de.andy.spielplatz.dj;
+package de.andy.spielplatz.dj.library;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.andy.spielplatz.dj.Artist;
 
 import android.content.ContentResolver;
 import android.database.Cursor;

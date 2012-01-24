@@ -1,9 +1,12 @@
-package de.andy.spielplatz.dj;
+package de.andy.spielplatz.dj.library;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import de.andy.spielplatz.dj.Song;
+import de.andy.spielplatz.dj.SortBy;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
