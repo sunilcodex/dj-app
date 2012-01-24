@@ -331,7 +331,7 @@ public class WaveformView extends View {
 	        // Draw grid
 	        double onePixelInSecs = pixelsToSeconds(1);
 	        boolean onlyEveryFiveSecs = (onePixelInSecs > 1.0 / 50.0);
-	        double fractionalSecs = mOffset * onePixelInSecs;
+	        double fractionalSecs = mOffset * onePixelInSecs - (width/2)*onePixelInSecs;
 	        int integerSecs = (int) fractionalSecs;
 	        int i = 0;
 	
@@ -339,10 +339,10 @@ public class WaveformView extends View {
 	           i++;
 	            fractionalSecs += onePixelInSecs;
 	            int integerSecsNew = (int) fractionalSecs;
-	            if (integerSecsNew != integerSecs) {
+	            if (fractionalSecs>0 && integerSecsNew != integerSecs) {
 	                integerSecs = integerSecsNew;
 	                if (!onlyEveryFiveSecs || 0 == (integerSecs % 5)) {
-	                    canvas.drawLine(i+mOffset, 0, i+mOffset, measuredHeight, mGridPaint);
+	                    canvas.drawLine(i, 1, i, measuredHeight-1, mGridPaint);
 	                }
 	            }
 	        }
@@ -365,14 +365,14 @@ public class WaveformView extends View {
 		                paint);
 	
 	            if (i == 0) {
-	                canvas.drawLine(width/2, 0, width/2, measuredHeight, mPlaybackLinePaint);
+	                canvas.drawLine(width/2, 1, width/2, measuredHeight-1, mPlaybackLinePaint);
 	            }
 	        }
 	
 	        // If we can see the right edge of the waveform, draw the
 	        // non-waveform area to the right as unselected
 	        for (i = width; i < measuredWidth; i++) {
-	            drawWaveformLine(canvas, i, 0, measuredHeight,
+	            drawWaveformLine(canvas, i, 1, measuredHeight-1,
 	                             mUnselectedBkgndLinePaint);            
 	        }
 	
@@ -415,7 +415,7 @@ public class WaveformView extends View {
 	            if (integerSecsNew != integerSecs) {
 	                integerSecs = integerSecsNew;
 	                if (!onlyEveryFiveSecs || 0 == (integerSecs % 5)) {
-	                    canvas.drawLine(i, 0, i, measuredHeight, mGridPaint);
+	                    canvas.drawLine(i, 1, i, measuredHeight-1, mGridPaint);
 	                }
 	            }
 	        }
@@ -450,7 +450,7 @@ public class WaveformView extends View {
 	            meanHeight /= count;
 	            
 	            if (gotPlaybackTime==1) {
-	                canvas.drawLine(i, 0, i, measuredHeight, mPlaybackLinePaint);
+	                canvas.drawLine(i, 1, i, measuredHeight-1, mPlaybackLinePaint);
 	                gotPlaybackTime = 2;
 	            }
 	            else
