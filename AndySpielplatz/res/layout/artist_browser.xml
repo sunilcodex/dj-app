@@ -8,12 +8,14 @@
    	<ListView android:id="@+id/browse_artist_artistlist"
 	    android:layout_width="250dp"
 	    android:layout_height="match_parent"
-	    android:listSelector="@drawable/group_header_border"
+	    android:background="@drawable/border_right"
+		android:paddingRight="4dp"
 		    />
     <LinearLayout 
 	    android:layout_width="0dp"
 	    android:layout_height="match_parent"
 	    android:layout_weight="1"
+	    android:layout_marginLeft="4dp"
 	    android:orientation="vertical">
     
     <TextView android:id="@+id/browse_artist_name"
@@ -23,6 +25,8 @@
 	    android:textColor="#334A7A"
 	    android:background="@drawable/group_header_border"
 	    android:padding="4sp"
+	    android:layout_marginTop="4dp"
+	    android:layout_marginBottom="4dp"
 		/>
 	<ListView android:id="@+id/browse_artist_songlist"
 	    android:layout_width="match_parent"

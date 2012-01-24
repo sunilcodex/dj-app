@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="horizontal" >
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" android:baselineAligned="false">
 	
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal" 
+        android:baselineAligned="false"
+        >
+
     <fragment
         android:id="@+id/main_navigation_fragment"
 		android:layout_width="130dp"
@@ -25,6 +34,95 @@
          android:background="#FFFFFF"
          android:paddingLeft="4dp"
          />
-     
+     	        
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/left_navigation"
+        >
+    <LinearLayout 
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        >
+        
+        <TextView 
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:background="#00FF00"
+            android:layout_marginLeft="5dp"
+ 			android:layout_marginRight="5dp"
+            />
+        <TextView 
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:layout_height="match_parent"
+            android:background="#0000FF"
+			android:layout_marginLeft="5dp"
+ 			android:layout_marginRight="5dp"
+            />
+    </LinearLayout>
+    <LinearLayout 
+        android:layout_height="60dp"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        >
+                            <fragment
+                                android:id="@+id/deck_a_song_display"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#FF0000"
+				android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                class="de.andy.spielplatz.layout.fragments.deck.SongDisplay"
+                />
+                            <fragment
+                                android:id="@+id/deck_b_song_display"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#FF0000"
+				android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                class="de.andy.spielplatz.layout.fragments.deck.SongDisplay"
+                />
+    </LinearLayout>
     
+        <LinearLayout 
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="140dp"
+        android:layout_gravity="center"
+        >
+				<fragment 
+				    android:id="@+id/deck_a_buttons"
+				    android:layout_width="wrap_content"
+				    android:layout_height="match_parent"
+				    class="de.andy.spielplatz.layout.fragments.deck.DeckButtonsA"
+				    />
+<SeekBar
+        android:id="@+id/fader"
+        android:layout_width="340dp"
+        android:layout_height="40dp"
+        android:secondaryProgress="0"
+        android:progressDrawable="@drawable/clean_seekbar"
+        android:thumb="@drawable/slider"
+        android:max="100"
+        android:progress="50"
+        android:layout_gravity="center_vertical"/>
+								
+								<fragment 
+				    android:id="@+id/deck_b_buttons"
+				    android:layout_width="wrap_content"
+				    android:layout_height="match_parent"
+				    class="de.andy.spielplatz.layout.fragments.deck.DeckButtonsB"
+				    />
+								   </LinearLayout>
+    </LinearLayout>
+    
+        
 </LinearLayout>

@@ -15,6 +15,9 @@ import android.util.Log;
  */
 public class Deck
 {
+	public static final int DECK_A = 1;
+	public static final int DECK_B = 2;
+
 	private static final String TAG = "DJApp.Deck";
 
 	private MediaPlayer mediaPlayer;
@@ -90,9 +93,10 @@ public class Deck
 		{
 			try
 			{
-				this.mediaPlayer.release();
+				this.mediaPlayer.reset();
 				this.mediaPlayer.setDataSource(song.getFile());
 				this.mediaPlayer.prepare();
+
 			}
 			catch (IOException e)
 			{

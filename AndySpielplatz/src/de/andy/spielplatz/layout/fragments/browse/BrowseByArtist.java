@@ -15,22 +15,29 @@ import de.andy.spielplatz.R;
 import de.andy.spielplatz.adapter.ArtistAdapter;
 import de.andy.spielplatz.adapter.SongListAdapter;
 import de.andy.spielplatz.dj.Artist;
-import de.andy.spielplatz.dj.ArtistLibrary;
-import de.andy.spielplatz.dj.SongLibrary;
+import de.andy.spielplatz.dj.library.Library;
+import de.andy.spielplatz.dj.library.SongLibrary;
 
 public class BrowseByArtist extends Fragment
 {
-	private SongLibrary songLibrary;
 	private List<Artist> allArtists;
-	private ArtistLibrary artistLibrary;
+	private SongLibrary songLibrary;
+	private ArtistAdapter artistAdapter;
+	private int lastKnownPosition = 0;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState)
 	{
 		super.onCreate(savedInstanceState);
-		this.songLibrary = new SongLibrary(this.getActivity().getContentResolver());
-		this.artistLibrary = new ArtistLibrary(this.getActivity().getContentResolver(), this.songLibrary);
-		this.allArtists = this.artistLibrary.getAllArtists();
+
+		if (this.allArtists == null)
+			this.allArtists = Library.getInstance().getArtistLibrary().getAllArtists();
+
+		if (this.songLibrary == null)
+			this.songLibrary = Library.getInstance().getSongLibrary();
+
+		if (this.artistAdapter == null)
+			this.artistAdapter = new ArtistAdapter(this.getActivity(), this.allArtists);
 	}
 
 	@Override
@@ -44,27 +51,29 @@ public class BrowseByArtist extends Fragment
 	{
 		super.onActivityCreated(savedInstanceState);
 
-		ListView artistList = (ListView) this.getView().findViewById(R.id.browse_artist_artistlist);
-		artistList.setAdapter(new ArtistAdapter(this.getActivity(), this.allArtists));
+		final ListView artistList = (ListView) this.getView().findViewById(R.id.browse_artist_artistlist);
+		artistList.setAdapter(this.artistAdapter);
+		artistList.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
 
 		final ListView songList = (ListView) this.getView().findViewById(R.id.browse_artist_songlist);
 		final TextView artistName = (TextView) this.getView().findViewById(R.id.browse_artist_name);
 
-		Artist artist = this.allArtists.get(0);
+		Artist artist = this.allArtists.get(this.lastKnownPosition);
 		artistName.setText(artist.getName());
 		songList.setAdapter(new SongListAdapter(this.getActivity(), this.songLibrary.getAllSongsByArtist(artist.getKey())));
-
 		artistList.setOnItemClickListener(new OnItemClickListener()
 		{
 
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id)
 			{
-				Artist artist = allArtists.get(position);
+				artistList.setItemChecked(position, true);
+				BrowseByArtist.this.lastKnownPosition = position;
+				Artist artist = BrowseByArtist.this.allArtists.get(position);
 				artistName.setText(artist.getName());
 				songList.setAdapter(new SongListAdapter(BrowseByArtist.this.getActivity(), BrowseByArtist.this.songLibrary.getAllSongsByArtist(artist.getKey())));
 			}
 		});
-
+		artistList.setItemChecked(0, true);
 	}
 }

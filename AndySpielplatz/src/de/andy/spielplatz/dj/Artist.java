@@ -30,4 +30,10 @@ public class Artist
 	{
 		this.key = key;
 	}
+
+	@Override
+	public String toString()
+	{
+		return this.name;
+	}
 }
