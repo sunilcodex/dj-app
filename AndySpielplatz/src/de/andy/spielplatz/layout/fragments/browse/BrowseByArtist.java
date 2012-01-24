@@ -30,14 +30,6 @@ public class BrowseByArtist extends Fragment
 	{
 		super.onCreate(savedInstanceState);
 
-		if (this.allArtists == null)
-			this.allArtists = Library.getInstance().getArtistLibrary().getAllArtists();
-
-		if (this.songLibrary == null)
-			this.songLibrary = Library.getInstance().getSongLibrary();
-
-		if (this.artistAdapter == null)
-			this.artistAdapter = new ArtistAdapter(this.getActivity(), this.allArtists);
 	}
 
 	@Override
@@ -50,6 +42,15 @@ public class BrowseByArtist extends Fragment
 	public void onActivityCreated(Bundle savedInstanceState)
 	{
 		super.onActivityCreated(savedInstanceState);
+
+		if (this.allArtists == null)
+			this.allArtists = Library.getInstance().getArtistLibrary().getAllArtists();
+
+		if (this.songLibrary == null)
+			this.songLibrary = Library.getInstance().getSongLibrary();
+
+		if (this.artistAdapter == null)
+			this.artistAdapter = new ArtistAdapter(this.getActivity(), this.allArtists);
 
 		final ListView artistList = (ListView) this.getView().findViewById(R.id.browse_artist_artistlist);
 		artistList.setAdapter(this.artistAdapter);

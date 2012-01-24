@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.DragEvent;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnDragListener;
@@ -51,14 +52,18 @@ public class SongDisplay extends Fragment
 		{
 			this.albumArt.setVisibility(View.INVISIBLE);
 			this.duration.setVisibility(View.INVISIBLE);
-			this.artist.setVisibility(View.INVISIBLE);
-			this.title.setText("FUCK YO");
+			// this.artist.setVisibility(View.INVISIBLE);
+			this.artist.setText("no song selected. please drop a song here");
+			this.artist.setGravity(Gravity.CENTER);
+			this.title.setVisibility(View.INVISIBLE);
 		}
 		else
 		{
 			this.albumArt.setVisibility(View.VISIBLE);
 			this.duration.setVisibility(View.VISIBLE);
 			this.artist.setVisibility(View.VISIBLE);
+			this.artist.setGravity(Gravity.LEFT);
+			this.title.setVisibility(View.VISIBLE);
 			this.view.setBackgroundResource(R.drawable.song_deck_border);
 
 			String uriString = this.song.getAlbumArtUri();

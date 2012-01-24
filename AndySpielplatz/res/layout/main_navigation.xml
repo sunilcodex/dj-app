@@ -9,5 +9,6 @@
 	android:paddingRight="0dp"
 	android:dividerHeight="1dp"
 	android:divider="#C9C9C9"
+	android:soundEffectsEnabled="false"
 >
 </ListView>
