@@ -145,7 +145,9 @@ public class WaveformView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-    	//return false;
+    	if(!mFixedWIndowSize)
+    		return false;
+    	
         if (mGestureDetector.onTouchEvent(event)) {
             return true;
         }
