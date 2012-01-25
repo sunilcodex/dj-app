@@ -622,9 +622,14 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
 //            if (now >= mPlayEndMsec) {
 //                handlePause();
 //            }
-        }
+            mWaveformView.setParameters(mStartPos, mEndPos, mOffset);
+            mWaveformView.invalidate();
 
-        if (!mTouchDragging) {
+            mWaveformView1.setParameters(mStartPos, mEndPos, mOffset);
+            mWaveformView1.invalidate();
+       }
+
+/*        if (!mTouchDragging) {
             int offsetDelta;
 
             if (mFlingVelocity != 0) {
@@ -668,11 +673,7 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
             }
         }
 
-        mWaveformView.setParameters(mStartPos, mEndPos, mOffset);
-        mWaveformView.invalidate();
-
-        mWaveformView1.setParameters(mStartPos, mEndPos, mOffset);
-        mWaveformView1.invalidate();
+*/
     }
 
 }
