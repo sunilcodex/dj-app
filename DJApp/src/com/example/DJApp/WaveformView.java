@@ -145,23 +145,23 @@ public class WaveformView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-    	return false;
-//        if (mGestureDetector.onTouchEvent(event)) {
-//            return true;
-//        }
-//
-//        switch(event.getAction()) {
-//        case MotionEvent.ACTION_DOWN:
-//            mListener.waveformTouchStart(event.getX());
-//            break;
-//        case MotionEvent.ACTION_MOVE:
-//            mListener.waveformTouchMove(event.getX());
-//            break;
-//        case MotionEvent.ACTION_UP:
-//            mListener.waveformTouchEnd();
-//            break;
-//        }
-//        return true;
+    	//return false;
+        if (mGestureDetector.onTouchEvent(event)) {
+            return true;
+        }
+
+        switch(event.getAction()) {
+        case MotionEvent.ACTION_DOWN:
+            mListener.waveformTouchStart(event.getX());
+            break;
+        case MotionEvent.ACTION_MOVE:
+            mListener.waveformTouchMove(event.getX());
+            break;
+        case MotionEvent.ACTION_UP:
+            mListener.waveformTouchEnd();
+            break;
+        }
+        return true;
     }
 
     public void setFixedWindow(boolean fixed)

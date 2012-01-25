@@ -446,27 +446,31 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
      * animate and trigger another redraw.
      */
     public void waveformDraw() {
-        mWidth = mWaveformView.getMeasuredWidth();
-        if (mOffsetGoal != mOffset && !mKeyDown)
-            updateDisplay();
-        else if (mIsPlaying) {
-            updateDisplay();
-        } else if (mFlingVelocity != 0) {
-            updateDisplay();
-        }
+//        mWidth = mWaveformView.getMeasuredWidth();
+//        if (mOffsetGoal != mOffset && !mKeyDown)
+//            updateDisplay();
+//        else if (mIsPlaying) {
+//            updateDisplay();
+//        } else if (mFlingVelocity != 0) {
+//            updateDisplay();
+//        }
     }
 
     public void waveformTouchStart(float x) {
-        mTouchDragging = true;
-        mTouchStart = x;
-        mTouchInitialOffset = mOffset;
-        mFlingVelocity = 0;
-        mWaveformTouchStartMsec = System.currentTimeMillis();
+    	audioPlayer1.seekTo(x/640);
+    	updateDisplay();
+//        mTouchDragging = true;
+//        mTouchStart = x;
+//        mTouchInitialOffset = mOffset;
+//        mFlingVelocity = 0;
+//        mWaveformTouchStartMsec = System.currentTimeMillis();
     }
 
     public void waveformTouchMove(float x) {
-        mOffset = trap((int)(mTouchInitialOffset + (mTouchStart - x)));
-        updateDisplay();
+    	audioPlayer1.seekTo(x/640);
+    	updateDisplay();
+//        mOffset = trap((int)(mTouchInitialOffset + (mTouchStart - x)));
+//        updateDisplay();
     }
     
     private int trap(int pos) {
@@ -478,25 +482,25 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
     }
     
     public void waveformTouchEnd() {
-        mTouchDragging = false;
-        mOffsetGoal = mOffset;
-
-        long elapsedMsec = System.currentTimeMillis() -
-            mWaveformTouchStartMsec;
-        if (elapsedMsec < 300) {
-            if (mIsPlaying) {
-                int seekMsec = mWaveformView.pixelsToMillisecs(
-                    (int)(mTouchStart + mOffset));
-                if (seekMsec >= mPlayStartMsec &&
-                    seekMsec < mPlayEndMsec) {
-                    mPlayer.seekTo(seekMsec - mPlayStartOffset);
-                } else {
-                    handlePause();
-                }
-            } else {
-                onPlay((int)(mTouchStart + mOffset));
-            }
-        }
+//        mTouchDragging = false;
+//        mOffsetGoal = mOffset;
+//
+//        long elapsedMsec = System.currentTimeMillis() -
+//            mWaveformTouchStartMsec;
+//        if (elapsedMsec < 300) {
+//            if (mIsPlaying) {
+//                int seekMsec = mWaveformView.pixelsToMillisecs(
+//                    (int)(mTouchStart + mOffset));
+//                if (seekMsec >= mPlayStartMsec &&
+//                    seekMsec < mPlayEndMsec) {
+//                    mPlayer.seekTo(seekMsec - mPlayStartOffset);
+//                } else {
+//                    handlePause();
+//                }
+//            } else {
+//                onPlay((int)(mTouchStart + mOffset));
+//            }
+//        }
     }
 
 
