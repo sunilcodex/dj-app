@@ -21,7 +21,6 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.DashPathEffect;
 import android.util.AttributeSet;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -44,7 +43,6 @@ public class WaveformView extends View {
         public void waveformTouchStart(float x);
         public void waveformTouchMove(float x);
         public void waveformTouchEnd();
-        public void waveformFling(float x);
         public void waveformDraw();
     };
 
@@ -63,18 +61,13 @@ public class WaveformView extends View {
     private double[] mZoomFactorByZoomLevel;
     private int[] mHeightsAtThisZoomLevel;
     private int mZoomLevel;
-    private int mNumZoomLevels;
     private int mSampleRate;
     private int mSamplesPerFrame;
     private int mOffset;
-    private int mSelectionStart;
-    private int mSelectionEnd;
     private int mPlaybackPos;
     private WaveformListener mListener;
-    private GestureDetector mGestureDetector;
     private boolean mInitialized;
 	private boolean mFixedWIndowSize;
-	private float mDensity;
 
     public WaveformView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -121,25 +114,12 @@ public class WaveformView extends View {
             2, 1, 1,
             getResources().getColor(R.drawable.timecode_shadow));
 
-        mGestureDetector = new GestureDetector(
-                context,
-                new GestureDetector.SimpleOnGestureListener() {
-                    public boolean onFling(
-                                MotionEvent e1, MotionEvent e2, float vx, float vy) {
-                        mListener.waveformFling(vx);
-                        return true;
-                    }
-                });
-
         mSoundFile = null;
         mLenByZoomLevel = null;
         mValuesByZoomLevel = null;
         mHeightsAtThisZoomLevel = null;
         mOffset = 0;
         mPlaybackPos = -1;
-        mSelectionStart = 0;
-        mSelectionEnd = 0;
-        mDensity = 1.0f;
         mInitialized = false;
     }
 
@@ -148,10 +128,6 @@ public class WaveformView extends View {
     	if(!mFixedWIndowSize)
     		return false;
     	
-        if (mGestureDetector.onTouchEvent(event)) {
-            return true;
-        }
-
         switch(event.getAction()) {
         case MotionEvent.ACTION_DOWN:
             mListener.waveformTouchStart(event.getX());
@@ -183,56 +159,6 @@ public class WaveformView extends View {
         return mInitialized;
     }
 
-    public int getZoomLevel() {
-        return mZoomLevel;
-    }
-
-    public void setZoomLevel(int zoomLevel) {
-        while (mZoomLevel > zoomLevel) {
-            zoomIn();
-        }
-        while (mZoomLevel < zoomLevel) {
-            zoomOut();
-        }
-    }
-
-    public boolean canZoomIn() {
-        return (mZoomLevel > 0);
-    }
-
-    public void zoomIn() {
-        if (canZoomIn()) {
-            mZoomLevel--;
-            mSelectionStart *= 2;
-            mSelectionEnd *= 2;
-            mHeightsAtThisZoomLevel = null;
-            int offsetCenter = mOffset + getMeasuredWidth() / 2;
-            offsetCenter *= 2;
-            mOffset = offsetCenter - getMeasuredWidth() / 2;
-            if (mOffset < 0)
-                mOffset = 0;
-            invalidate();
-        }
-    }
-
-    public boolean canZoomOut() {
-        return (mZoomLevel < mNumZoomLevels - 1);
-    }
-
-    public void zoomOut() {
-        if (canZoomOut()) {
-            mZoomLevel++;
-            mSelectionStart /= 2;
-            mSelectionEnd /= 2;
-            int offsetCenter = mOffset + getMeasuredWidth() / 2;
-            offsetCenter /= 2;
-            mOffset = offsetCenter - getMeasuredWidth() / 2;
-            if (mOffset < 0)
-                mOffset = 0;
-            mHeightsAtThisZoomLevel = null;
-            invalidate();
-        }
-    }
 
     public int maxPos() {
         return mLenByZoomLevel[mZoomLevel];
@@ -264,18 +190,8 @@ public class WaveformView extends View {
                      (mSampleRate * z) + 0.5);
     }
 
-    public void setParameters(int start, int end, int offset) {
-        mSelectionStart = start;
-        mSelectionEnd = end;
+    public void setParameters(int offset) {
         mOffset = offset;
-    }
-
-    public int getStart() {
-        return mSelectionStart;
-    }
-
-    public int getEnd() {
-        return mSelectionEnd;
     }
 
     public int getOffset() {
@@ -292,7 +208,6 @@ public class WaveformView extends View {
 
     public void recomputeHeights(float density) {
         mHeightsAtThisZoomLevel = null;
-        mDensity = density;
         mTimecodePaint.setTextSize((int)(12 * density));
 
         invalidate();
@@ -319,8 +234,7 @@ public class WaveformView extends View {
         // Draw waveform
         int measuredWidth = getMeasuredWidth();
         int measuredHeight = getMeasuredHeight();
-        int start = mOffset;
-        int width = mHeightsAtThisZoomLevel.length - start;
+        int width = this.getWidth();
         int ctr = measuredHeight / 2;
 
         if (width > measuredWidth)
@@ -351,14 +265,7 @@ public class WaveformView extends View {
 
 	        // Draw waveform
 	        for (i = -width/2; i <= width/2; i++) {
-	            Paint paint;
-	            if (i + start >= mSelectionStart &&
-	                i + start < mSelectionEnd) {
-	                paint = mSelectedLinePaint;
-	            } else {
-	                //drawWaveformLine(canvas, i, 0, measuredHeight,  mUnselectedBkgndLinePaint);
-	                paint = mUnselectedLinePaint;
-	            }
+	            Paint paint = mUnselectedLinePaint;
 	            if(i+mOffset>=0 && i+mOffset<mHeightsAtThisZoomLevel.length)
 		            drawWaveformLine(
 		                canvas, i+width/2,
@@ -366,10 +273,8 @@ public class WaveformView extends View {
 		                ctr + 1 + mHeightsAtThisZoomLevel[i+mOffset],
 		                paint);
 	
-	            if (i == 0) {
-	                canvas.drawLine(width/2, 1, width/2, measuredHeight-1, mPlaybackLinePaint);
-	            }
 	        }
+	                canvas.drawLine(320, 1, width/2, measuredHeight-1, mPlaybackLinePaint);
 	
 	        // If we can see the right edge of the waveform, draw the
 	        // non-waveform area to the right as unselected
@@ -377,17 +282,7 @@ public class WaveformView extends View {
 	            drawWaveformLine(canvas, i, 1, measuredHeight-1,
 	                             mUnselectedBkgndLinePaint);            
 	        }
-	
-	        // Draw borders
-	        canvas.drawLine(
-	            mSelectionStart - mOffset + 0.5f, 30,
-	            mSelectionStart - mOffset + 0.5f, measuredHeight,
-	            mBorderLinePaint);
-	        canvas.drawLine(
-	            mSelectionEnd - mOffset + 0.5f, 0,
-	            mSelectionEnd - mOffset + 0.5f, measuredHeight - 30,
-	            mBorderLinePaint);
-	
+		
 	        // Draw timecode
 	        double timecodeIntervalSecs = 1.0;
 	        if (timecodeIntervalSecs / onePixelInSecs < 50) {
@@ -401,13 +296,12 @@ public class WaveformView extends View {
         {
         	mOffset = 0;
         	int intervall = mSoundFile.getNumFrames() / width;
-        	start = mOffset;
         	
 	        // Draw grid
 	        double onePixelInSecs = pixelsToSeconds(1);
 	        boolean onlyEveryFiveSecs = (onePixelInSecs > 1.0 / 50.0);
-	        double fractionalSecs = mOffset * onePixelInSecs;
-	        int integerSecs = (int) fractionalSecs;
+	        double fractionalSecs = 0;
+	        int integerSecs = 0;
 	        int i = 0;
 	
 	        while (i < width) {
@@ -425,15 +319,7 @@ public class WaveformView extends View {
 	        // Draw waveform
 	        int gotPlaybackTime = 0;
 	        for (i = 0; i < width; i++) {
-	            Paint paint;
-	            if (i + start >= mSelectionStart &&
-	                i + start < mSelectionEnd) {
-	                paint = mSelectedLinePaint;
-	            } else {
-//	                drawWaveformLine(canvas, i, 0, measuredHeight,
-//	                                 mUnselectedBkgndLinePaint);
-	                paint = mUnselectedLinePaint;
-	            }
+	            Paint paint = mUnselectedLinePaint;
 	            
 	            int meanHeight = 0;
 	            int count = 0;
@@ -464,24 +350,7 @@ public class WaveformView extends View {
 		                paint);
 	            }	
 	        }
-	
-	        // If we can see the right edge of the waveform, draw the
-	        // non-waveform area to the right as unselected
-//	        for (i = width; i < measuredWidth; i++) {
-//	            drawWaveformLine(canvas, i, 0, measuredHeight,
-//	                             mUnselectedBkgndLinePaint);            
-//	        }
-	
-	        // Draw borders
-	        canvas.drawLine(
-	            mSelectionStart - mOffset + 0.5f, 30,
-	            mSelectionStart - mOffset + 0.5f, measuredHeight,
-	            mBorderLinePaint);
-	        canvas.drawLine(
-	            mSelectionEnd - mOffset + 0.5f, 0,
-	            mSelectionEnd - mOffset + 0.5f, measuredHeight - 30,
-	            mBorderLinePaint);
-	
+		
 	        // Draw timecode
 	        double timecodeIntervalSecs = 1.0;
 	        if (timecodeIntervalSecs / onePixelInSecs < 50) {
@@ -579,7 +448,6 @@ public class WaveformView extends View {
             heights[i] = value * value;
         }
 
-        mNumZoomLevels = 5;
         mLenByZoomLevel = new int[5];
         mZoomFactorByZoomLevel = new double[5];
         mValuesByZoomLevel = new double[5][];
