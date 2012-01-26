@@ -1,27 +1,17 @@
 package com.example.DJApp;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FilenameFilter;
-import java.io.PrintWriter;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 import java.util.TimerTask;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.MediaPlayer.OnCompletionListener;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.View.OnTouchListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
@@ -51,61 +41,21 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
 	private SeekBar faderSeekBar;
 //	private SeekBar progressBar;
 	private TextView nowPlayingText1;
-
 	private Handler handler;
 	private TimerTask testTask;
-
-	
-	
-	
-    private long mLoadingStartTime;
     private long mLoadingLastUpdateTime;
     private boolean mLoadingKeepGoing;
     private CheapSoundFile mSoundFile;
-    private String mFilename;
-    private String mDstFilename;
-    private String mArtist;
-    private String mAlbum;
-    private String mGenre;
-    private String mTitle;
-    private int mYear;
-    private String mExtension;
-    private String mRecordingFilename;
-    private int mNewFileKind;
-    private boolean mWasGetContentIntent;
     private WaveformView mWaveformView;
     private WaveformView mWaveformView1;
-    private boolean mKeyDown;
-    private String mCaption = "";
     private int mWidth;
     private int mMaxPos;
-    private int mStartPos;
     private int mEndPos;
-    private boolean mStartVisible;
-    private boolean mEndVisible;
-    private int mLastDisplayedStartPos;
-    private int mLastDisplayedEndPos;
-    private int mOffset;
     private int mOffsetGoal;
-    private int mFlingVelocity;
-    private int mPlayStartMsec;
-    private int mPlayStartOffset;
-    private int mPlayEndMsec;
     private Handler mHandler;
     private boolean mIsPlaying;
-    private MediaPlayer mPlayer;
-    private boolean mCanSeekAccurately;
     private boolean mTouchDragging;
-    private float mTouchStart;
-    private int mTouchInitialOffset;
-    private int mTouchInitialStartPos;
-    private int mTouchInitialEndPos;
-    private long mWaveformTouchStartMsec;
     private float mDensity;
-    private int mMarkerLeftInset;
-    private int mMarkerRightInset;
-    private int mMarkerTopOffset;
-    private int mMarkerBottomOffset;
     private ProgressDialog mProgressDialog;
 
 	@Override
@@ -379,22 +329,12 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
         mWaveformView1.recomputeHeights(mDensity);
 
         mMaxPos = mWaveformView.maxPos();
-        mLastDisplayedStartPos = -1;
-        mLastDisplayedEndPos = -1;
 
         mTouchDragging = false;
 
-        mOffset = 0;
         mOffsetGoal = 0;
-        mFlingVelocity = 0;
         if (mEndPos > mMaxPos)
             mEndPos = mMaxPos;
-
-        mCaption =
-            mSoundFile.getFiletype() + ", " +
-            mSoundFile.getSampleRate() + " Hz, " +
-            mSoundFile.getAvgBitrateKbps() + " kbps, " +
-            mMaxPos;
 
         updateDisplay();
     }
@@ -473,14 +413,6 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
 //        updateDisplay();
     }
     
-    private int trap(int pos) {
-        if (pos < 0)
-            return 0;
-        if (pos > mMaxPos)
-            return mMaxPos;
-        return pos;
-    }
-    
     public void waveformTouchEnd() {
 //        mTouchDragging = false;
 //        mOffsetGoal = mOffset;
@@ -503,102 +435,7 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
 //        }
     }
 
-
-    private synchronized void onPlay(int startPosition) {
-        if (mIsPlaying) {
-            handlePause();
-            return;
-        }
-
-        if (mPlayer == null) {
-            // Not initialized yet
-            return;
-        }
-
-        try {
-            mPlayStartMsec = mWaveformView.pixelsToMillisecs(startPosition);
-            if (startPosition < mStartPos) {
-                mPlayEndMsec = mWaveformView.pixelsToMillisecs(mStartPos);
-            } else if (startPosition > mEndPos) {
-                mPlayEndMsec = mWaveformView.pixelsToMillisecs(mMaxPos);
-            } else {
-                mPlayEndMsec = mWaveformView.pixelsToMillisecs(mEndPos);
-            }
-
-            mPlayStartOffset = 0;
-
-            int startFrame = mWaveformView.secondsToFrames(
-                mPlayStartMsec * 0.001);
-            int endFrame = mWaveformView.secondsToFrames(
-                mPlayEndMsec * 0.001);
-            int startByte = mSoundFile.getSeekableFrameOffset(startFrame);
-            int endByte = mSoundFile.getSeekableFrameOffset(endFrame);
-            if (mCanSeekAccurately && startByte >= 0 && endByte >= 0) {
-                try {
-                    mPlayer.reset();
-                    mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                    FileInputStream subsetInputStream = new FileInputStream(
-                    		songs
-            				.get(currentPositionPlayer1));
-                    mPlayer.setDataSource(subsetInputStream.getFD(),
-                                          startByte, endByte - startByte);
-                    mPlayer.prepare();
-                    mPlayStartOffset = mPlayStartMsec;
-                } catch (Exception e) {
-                    System.out.println("Exception trying to play file subset");
-                    mPlayer.reset();
-                    mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                    mPlayer.setDataSource(songs
-            				.get(currentPositionPlayer1));
-                    mPlayer.prepare();
-                    mPlayStartOffset = 0;
-                }
-            }
-
-            mPlayer.setOnCompletionListener(new OnCompletionListener() {
-                    public synchronized void onCompletion(MediaPlayer arg0) {
-                        handlePause();
-                    }
-                });
-            mIsPlaying = true;
-
-            if (mPlayStartOffset == 0) {
-                mPlayer.seekTo(mPlayStartMsec);
-            }
-            mPlayer.start();
-            updateDisplay();
-        } catch (Exception e) {
-            showFinalAlert(e, R.string.error);
-            return;
-        }
-    }
-    
-    private void showFinalAlert(Exception e, int messageResourceId) {
-    	int bla = 0;
-    }
-    
-    private String getStackTrace(Exception e) {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        PrintWriter writer = new PrintWriter(stream, true);
-        e.printStackTrace(writer);
-        return stream.toString();
-    }
-
-    private synchronized void handlePause() {
-        if (mPlayer != null && mPlayer.isPlaying()) {
-            mPlayer.pause();
-        }
-        mWaveformView.setPlayback(-1);
-        mIsPlaying = false;
-    }
-    
-    public void waveformFling(float vx) {
-        mTouchDragging = false;
-        mOffsetGoal = mOffset;
-        mFlingVelocity = (int)(-vx);
-        updateDisplay();
-    }
-    
+  
     private void setOffsetGoalNoUpdate(int offset) {
         if (mTouchDragging) {
             return;
@@ -619,61 +456,11 @@ public class DJApp extends Activity implements WaveformView.WaveformListener{
             int frames1 = mWaveformView1.millisecsToPixels(now);
             mWaveformView1.setPlayback(frames1);
             setOffsetGoalNoUpdate(frames - mWidth / 2);
-//            if (now >= mPlayEndMsec) {
-//                handlePause();
-//            }
-            mWaveformView.setParameters(mStartPos, mEndPos, mOffset);
+
             mWaveformView.invalidate();
 
-            mWaveformView1.setParameters(mStartPos, mEndPos, mOffset);
             mWaveformView1.invalidate();
        }
-
-/*        if (!mTouchDragging) {
-            int offsetDelta;
-
-            if (mFlingVelocity != 0) {
-                float saveVel = mFlingVelocity;
-
-                offsetDelta = mFlingVelocity / 30;
-                if (mFlingVelocity > 80) {
-                    mFlingVelocity -= 80;
-                } else if (mFlingVelocity < -80) {
-                    mFlingVelocity += 80;
-                } else {
-                    mFlingVelocity = 0;
-                }
-
-                mOffset += offsetDelta;
-
-                if (mOffset + mWidth / 2 > mMaxPos) {
-                    mOffset = mMaxPos - mWidth / 2;
-                    mFlingVelocity = 0;
-                }
-                if (mOffset < 0) {
-                    mOffset = 0;
-                    mFlingVelocity = 0;
-                }
-                mOffsetGoal = mOffset;
-            } else {
-                offsetDelta = mOffsetGoal - mOffset;
-
-                if (offsetDelta > 10)
-                    offsetDelta = offsetDelta / 10;
-                else if (offsetDelta > 0)
-                    offsetDelta = 1;
-                else if (offsetDelta < -10)
-                    offsetDelta = offsetDelta / 10;
-                else if (offsetDelta < 0)
-                    offsetDelta = -1;
-                else
-                    offsetDelta = 0;
-
-                mOffset += offsetDelta;
-            }
-        }
-
-*/
     }
 
 }
