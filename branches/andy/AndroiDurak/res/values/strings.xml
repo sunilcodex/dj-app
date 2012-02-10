@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="next_turn">Next move!</string>
+    <string name="end_turn">End turn!</string>
+    <string name="end_turn_take_cards">End turn, take cards.</string>
+    <string name="app_name">AndroiDurak</string>
+
+</resources>

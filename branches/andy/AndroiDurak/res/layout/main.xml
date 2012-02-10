@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+	<LinearLayout
+	    android:id="@+id/top"
+	    android:layout_width="match_parent"
+	    android:layout_height="0dp"
+	    android:layout_weight="1"
+	    android:orientation="horizontal"
+	    >
+	    
+    <de.adurak.gui.DurakTableLayout
+        android:id="@+id/table"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:layout_weight="1"
+        android:background="@drawable/baize_background"
+	/>
+	<LinearLayout
+	     android:id="@+id/right"
+	     android:layout_width="250dp"
+	     android:layout_height="match_parent"
+	     android:background="@color/normal_green"
+	     android:orientation="vertical">
+	     <de.adurak.gui.StackView
+	         android:id="@+id/staple"
+	         android:layout_width="match_parent"
+	         android:layout_height="200dp"
+	         />
+	     <de.adurak.gui.ListOfPlayers 
+		    android:id="@+id/player_list"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_margin="10dp"
+		    android:background="@drawable/light_bg_dark_border"
+		    android:orientation="vertical"
+	    	/>
+	     
+	</LinearLayout>
+	
+	</LinearLayout>	<LinearLayout
+	    android:id="@+id/bottom"
+	    android:orientation="horizontal"
+	    android:layout_width="match_parent"
+	    android:layout_height="200dp"
+	    >
+
+    <Gallery
+        android:id="@+id/player_cards"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1" 
+        android:spacing="5dp"
+        android:background="@color/normal_green"
+        />
+	    <LinearLayout 
+	        android:id="@+id/bottom_right"
+	        android:layout_width="250dp"
+	       	android:layout_height="match_parent"
+	       	android:background="@color/dark_green"
+	        android:orientation="vertical"
+	        >
+			<Button 
+			    android:id="@+id/btn_next_turn"
+			    android:text="@string/next_turn"
+			    android:layout_height="wrap_content"
+			    android:layout_width="wrap_content"
+			    android:onClick="nextTurn"
+			    android:layout_gravity="center"
+			    />
+			
+			<Button
+			    android:id="@+id/btn_end_turn"
+			    android:text="end turn"
+			    android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:onClick="endTurn"
+				/>
+	        
+	    </LinearLayout>
+	</LinearLayout>
+
+</LinearLayout>
